@@ -1,0 +1,112 @@
+typeof(rest) = 
+
+Optim.MultivariateOptimizationResults {
+	NelderMead {
+		Optim.AffineSimplexer,
+		Optim.AdaptiveParameters
+	},
+	Vector{Float64},
+	Float64,
+	Float64,
+	Vector {
+		OptimizationState {
+			Float64,
+			NelderMead {
+				Optim.AffineSimplexer,
+				Optim.AdaptiveParameters
+			}
+		}
+	},
+	Bool,
+	NamedTuple {
+		(
+			:f_limit_reached,
+			:g_limit_reached,
+			:h_limit_reached,
+			:time_limit,
+			:callback,
+			:f_increased
+		),
+		NTuple {
+			6,
+			Bool
+		}
+	}
+}
+
+_____________________________________________________________
+julia ?result
+_____________________________________________________________
+
+Summary
+  ≡≡≡≡≡≡≡≡≡
+
+  mutable struct Optim.MultivariateOptimizationResults{NelderMead{Optim.AffineSimplexer, Optim.AdaptiveParameters}, Vector{Float64}, Float64, Float64, Vector{OptimizationState{Float64, NelderMead{Optim.AffineSimplexer, Optim.AdaptiveParameters}}}, Bool, NamedTuple{(:f_limit_reached, :g_limit_reached, :h_limit_reached, :time_limit, :callback, :f_increased), NTuple{6, Bool}}}
+
+  Fields
+  ≡≡≡≡≡≡≡≡
+
+  method              :: NelderMead{Optim.AffineSimplexer, Optim.AdaptiveParameters}
+  initial_x           :: Vector{Float64}
+  minimizer           :: Vector{Float64}
+  minimum             :: Float64
+  iterations          :: Int64
+  iteration_converged :: Bool
+  x_converged         :: Bool
+  x_abstol            :: Float64
+  x_reltol            :: Float64
+  x_abschange         :: Float64
+  x_relchange         :: Float64
+  f_converged         :: Bool
+  f_abstol            :: Float64
+  f_reltol            :: Float64
+  f_abschange         :: Float64
+  f_relchange         :: Float64
+  g_converged         :: Bool
+  g_abstol            :: Float64
+  g_residual          :: Float64
+  f_increased         :: Bool
+  trace               :: Vector{OptimizationState{Float64, NelderMead{Optim.AffineSimplexer, Optim.AdaptiveParameters}}}
+  f_calls             :: Int64
+  g_calls             :: Int64
+  h_calls             :: Int64
+  ls_success          :: Bool
+  time_limit          :: Float64
+  time_run            :: Float64
+  stopped_by          :: NamedTuple{(:f_limit_reached, :g_limit_reached, :h_limit_reached, :time_limit, :callback, :f_increased), NTuple{6, Bool}}
+
+  Supertype Hierarchy
+  ≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡
+
+  Optim.MultivariateOptimizationResults{NelderMead{Optim.AffineSimplexer, Optim.AdaptiveParameters}, Vector{Float64}, Float64, Float64, Vector{OptimizationState{Float64, NelderMead{Optim.AffineSimplexer, Optim.AdaptiveParameters}}}, Bool, NamedTuple{(:f_limit_reached, :g_limit_reached, :h_limit_reached, :time_limit, :callback, :f_increased), NTuple{6, Bool}}} <: Optim.OptimizationResults <: Any
+  
+______________________________________________________________________________________________________________________________________________
+  
+  @show rest.method
+  @show rest.initial_x
+  @show rest.minimizer
+  @show rest.minimum
+  @show rest.iterations
+  @show rest.iteration_converged
+  @show rest.x_converged
+  @show rest.x_abstol
+  @show rest.x_reltol
+  @show rest.x_abschange
+  @show rest.x_relchange
+  @show rest.f_converged
+  @show rest.f_abstol
+  @show rest.f_reltol
+  @show rest.f_abschange
+  @show rest.f_relchange
+  @show rest.g_converged
+  @show rest.g_abstol
+  @show rest.g_residual
+  @show rest.f_increased
+  @show rest.trace
+  @show rest.f_calls
+  @show rest.g_calls
+  @show rest.h_calls
+  @show rest.ls_success
+  @show rest.time_limit
+  @show rest.time_run
+  @show rest.stopped_by

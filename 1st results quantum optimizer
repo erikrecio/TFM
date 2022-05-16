@@ -1,0 +1,394 @@
+julia> include("tfm_26_04.jl")
+pi1 = Any[1.0, 1.0, 1.0, 1.0]
+pf1 = Any[0.706, 0.348, 0.286, 0.303]
+
+julia> include("tfm_26_04.jl")
+pi1 = Any[1.0, 1.0, 1.0, 1.0]
+pf1 = Any[0.911, 0.0, 0.0, 0.022]
+
+julia> include("tfm_26_04.jl")
+pi1 = Any[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+pf1 = Any[0.057, 0.501, 0.001, 0.0, 0.001, 0.001, 0.29, 0.144]
+
+julia> include("tfm_26_04.jl")
+pi1 = Any[0.52, 0.446, 0.518, 0.511, 0.591, 0.513, 0.499, 0.556]
+pf1 = Any[0.626, 0.542, 0.369, 0.32, 0.365, 0.311, 0.457, 0.531]
+
+julia> include("tfm_26_04.jl")
+nsites = 8
+nqubits0 = 4
+nlayers = 5
+bondim = 5
+iter = 2000
+pi1 = Any[0.24, 0.475, 0.413, 0.653, 0.485, 0.479, 0.511, 0.447]
+pf1 = Any[0.739, 0.446, 0.351, 0.306, 0.297, 0.296, 0.586, 0.459]
+
+julia> include("tfm_26_04.jl")
+nsites = 8
+nqubits0 = 4
+nlayers = 10
+bondim = 5
+iter = 2000
+pi1 = Any[0.24, 0.475, 0.413, 0.653, 0.485, 0.479, 0.511, 0.447]
+pf1 = Any[0.465, 0.491, 0.314, 0.319, 0.289, 0.343, 0.511, 0.568]
+rest =  * Status: failure (reached maximum number of iterations)
+
+ * Candidate solution
+    Final objective value:     1.262943e+00
+
+ * Found with
+    Algorithm:     Nelder-Mead
+
+ * Convergence measures
+    √(Σ(yᵢ-ȳ)²)/n ≰ 1.0e-08
+
+ * Work counters
+    Seconds run:   225  (vs limit Inf)
+    Iterations:    2000
+    f(x) calls:    4725
+
+
+julia> include("tfm_26_04.jl")
+nsites = 8
+nqubits0 = 4
+nlayers = 2
+bondim = 5
+iter = 2000
+pi1 = Any[0.24, 0.475, 0.413, 0.653, 0.485, 0.479, 0.511, 0.447]
+pf1 = Any[0.27, 0.468, 0.34, 0.318, 0.442, 0.344, 0.446, 0.461]
+rest =  * Status: success
+
+ * Candidate solution
+    Final objective value:     1.443091e+00
+
+ * Found with
+    Algorithm:     Nelder-Mead
+
+ * Convergence measures
+    √(Σ(yᵢ-ȳ)²)/n ≤ 1.0e-08
+
+ * Work counters
+    Seconds run:   19  (vs limit Inf)
+    Iterations:    1284
+    f(x) calls:    1855
+
+
+julia> include("tfm_26_04.jl")
+nsites = 8
+nqubits0 = 4
+nlayers = 15
+bondim = 5
+iter = 2000
+pi1 = Any[0.24, 0.475, 0.413, 0.653, 0.485, 0.479, 0.511, 0.447]
+pf1 = Any[0.537, 0.5, 0.284, 0.345, 0.355, 0.335, 0.564, 0.453]
+rest =  * Status: failure (reached maximum number of iterations)
+
+ * Candidate solution
+    Final objective value:     1.302307e+00
+
+ * Found with
+    Algorithm:     Nelder-Mead
+
+ * Convergence measures
+    √(Σ(yᵢ-ȳ)²)/n ≰ 1.0e-08
+
+ * Work counters
+    Seconds run:   452  (vs limit Inf)
+    Iterations:    2000
+    f(x) calls:    6365
+
+
+julia> @time include("tfm_26_04.jl")
+nsites = 8
+nqubits0 = 4
+nlayers = 1
+bondim = 5
+iter = 2000
+pi1 = Any[0.24, 0.475, 0.413, 0.653, 0.485, 0.479, 0.511, 0.447]
+pf1 = Any[0.254, 0.503, 0.413, 0.49, 0.408, 0.431, 0.546, 0.445]
+rest =  * Status: success
+
+ * Candidate solution
+    Final objective value:     1.743482e+00
+
+ * Found with
+    Algorithm:     Nelder-Mead
+
+ * Convergence measures
+    √(Σ(yᵢ-ȳ)²)/n ≤ 1.0e-08
+
+ * Work counters
+    Seconds run:   4  (vs limit Inf)
+    Iterations:    389
+    f(x) calls:    653
+
+nsites = 8
+nqubits0 = 4
+nlayers = 1
+bondim = 5
+iter = 2000
+pi1 = Any[0.24, 0.475, 0.413, 0.653, 0.485, 0.479, 0.511, 0.447]
+pf1 = Any[0.254, 0.503, 0.413, 0.49, 0.408, 0.431, 0.546, 0.445]
+rest =  * Status: success
+
+ * Candidate solution
+    Final objective value:     1.743482e+00
+
+ * Found with
+    Algorithm:     Nelder-Mead
+
+ * Convergence measures
+    √(Σ(yᵢ-ȳ)²)/n ≤ 1.0e-08
+
+ * Work counters
+    Seconds run:   4  (vs limit Inf)
+    Iterations:    389
+    f(x) calls:    653
+
+nsites = 8
+nqubits0 = 4
+nlayers = 1
+bondim = 5
+iter = 2000
+pi1 = Any[0.24, 0.475, 0.413, 0.653, 0.485, 0.479, 0.511, 0.447]
+pf1 = Any[0.254, 0.503, 0.413, 0.49, 0.408, 0.431, 0.546, 0.445]
+rest =  * Status: success
+
+ * Candidate solution
+    Final objective value:     1.743482e+00
+
+ * Found with
+    Algorithm:     Nelder-Mead
+
+ * Convergence measures
+    √(Σ(yᵢ-ȳ)²)/n ≤ 1.0e-08
+
+ * Work counters
+    Seconds run:   4  (vs limit Inf)
+    Iterations:    389
+    f(x) calls:    653
+
+nsites = 8
+nqubits0 = 4
+nlayers = 1
+bondim = 5
+iter = 2000
+pi1 = Any[0.24, 0.475, 0.413, 0.653, 0.485, 0.479, 0.511, 0.447]
+pf1 = Any[0.254, 0.503, 0.413, 0.49, 0.408, 0.431, 0.546, 0.445]
+rest =  * Status: success
+
+ * Candidate solution
+    Final objective value:     1.743482e+00
+
+ * Found with
+    Algorithm:     Nelder-Mead
+
+ * Convergence measures
+    √(Σ(yᵢ-ȳ)²)/n ≤ 1.0e-08
+
+ * Work counters
+    Seconds run:   4  (vs limit Inf)
+    Iterations:    389
+    f(x) calls:    653
+
+nsites = 8
+nqubits0 = 4
+nlayers = 1
+bondim = 5
+iter = 2000
+pi1 = Any[0.24, 0.475, 0.413, 0.653, 0.485, 0.479, 0.511, 0.447]
+pf1 = Any[0.254, 0.503, 0.413, 0.49, 0.408, 0.431, 0.546, 0.445]
+rest =  * Status: success
+
+ * Candidate solution
+    Final objective value:     1.743482e+00
+
+ * Found with
+    Algorithm:     Nelder-Mead
+
+ * Convergence measures
+    √(Σ(yᵢ-ȳ)²)/n ≤ 1.0e-08
+
+ * Work counters
+    Seconds run:   4  (vs limit Inf)
+    Iterations:    389
+    f(x) calls:    653
+
+nsites = 8
+nqubits0 = 4
+nlayers = 1
+bondim = 5
+iter = 2000
+pi1 = Any[0.24, 0.475, 0.413, 0.653, 0.485, 0.479, 0.511, 0.447]
+pf1 = Any[0.254, 0.503, 0.413, 0.49, 0.408, 0.431, 0.546, 0.445]
+rest =  * Status: success
+
+ * Candidate solution
+    Final objective value:     1.743482e+00
+
+ * Found with
+    Algorithm:     Nelder-Mead
+
+ * Convergence measures
+    √(Σ(yᵢ-ȳ)²)/n ≤ 1.0e-08
+
+ * Work counters
+    Seconds run:   4  (vs limit Inf)
+    Iterations:    389
+    f(x) calls:    653
+
+nsites = 8
+nqubits0 = 4
+nlayers = 1
+bondim = 5
+iter = 2000
+pi1 = Any[0.24, 0.475, 0.413, 0.653, 0.485, 0.479, 0.511, 0.447]
+pf1 = Any[0.254, 0.503, 0.413, 0.49, 0.408, 0.431, 0.546, 0.445]
+rest =  * Status: success
+
+ * Candidate solution
+    Final objective value:     1.743482e+00
+
+ * Found with
+    Algorithm:     Nelder-Mead
+
+ * Convergence measures
+    √(Σ(yᵢ-ȳ)²)/n ≤ 1.0e-08
+
+ * Work counters
+    Seconds run:   4  (vs limit Inf)
+    Iterations:    389
+    f(x) calls:    653
+
+  4.136 s (11218544 allocations: 2.77 GiB)
+
+julia> @time include("tfm_26_04.jl")
+nsites = 8
+nqubits0 = 4
+nlayers = 1
+bondim = 5
+iter = 2000
+pi1 = Any[0.24, 0.475, 0.413, 0.653, 0.485, 0.479, 0.511, 0.447]
+pf1 = Any[0.254, 0.503, 0.413, 0.49, 0.408, 0.431, 0.546, 0.445]
+rest =  * Status: success
+
+ * Candidate solution
+    Final objective value:     1.743482e+00
+
+ * Found with
+    Algorithm:     Nelder-Mead
+
+ * Convergence measures
+    √(Σ(yᵢ-ȳ)²)/n ≤ 1.0e-08
+
+ * Work counters
+    Seconds run:   4  (vs limit Inf)
+    Iterations:    389
+    f(x) calls:    653
+
+  4.292350 seconds (11.22 M allocations: 2.767 GiB, 7.68% gc time, 8.63% compilation time)
+
+julia> @time include("tfm_26_04.jl")
+nsites = 8
+nqubits0 = 4
+nlayers = 1
+bondim = 5
+iter = 2000
+pi1 = Any[0.24, 0.475, 0.413, 0.653, 0.485, 0.479, 0.511, 0.447]
+pf1 = Any[0.254, 0.503, 0.413, 0.49, 0.408, 0.431, 0.546, 0.445]
+rest =  * Status: success
+
+ * Candidate solution
+    Final objective value:     1.743482e+00
+
+ * Found with
+    Algorithm:     Nelder-Mead
+
+ * Convergence measures
+    √(Σ(yᵢ-ȳ)²)/n ≤ 1.0e-08
+
+ * Work counters
+    Seconds run:   4  (vs limit Inf)
+    Iterations:    389
+    f(x) calls:    653
+
+  4.120363 seconds (11.22 M allocations: 2.767 GiB, 7.52% gc time, 8.28% compilation time)
+
+julia> @time include("tfm_26_04.jl")
+nsites = 5
+nqubits0 = 2
+nlayers = 10
+bondim = 10
+iter = 10000
+pi1 = Any[0.374, 0.474, 0.637, 0.411, 0.503]
+pf1 = Any[0.627, 0.002, 0.001, 0.525, 0.534]
+rest =  * Status: failure (reached maximum number of iterations)
+
+ * Candidate solution
+    Final objective value:     2.352581e-03
+
+ * Found with
+    Algorithm:     Nelder-Mead
+
+ * Convergence measures
+    √(Σ(yᵢ-ȳ)²)/n ≰ 1.0e-08
+
+ * Work counters
+    Seconds run:   306  (vs limit Inf)
+    Iterations:    10000
+    f(x) calls:    11695
+
+308.210953 seconds (897.39 M allocations: 215.963 GiB, 7.13% gc time, 0.11% compilation time)
+
+julia> @time include("tfm_26_04.jl")
+nsites = 8
+nqubits0 = 4
+nlayers = 10
+bondim = 10
+iter = 10000
+pi1 = Any[0.52, 0.446, 0.518, 0.511, 0.591, 0.513, 0.499, 0.556]
+pf1 = Any[0.511, 0.53, 0.242, 0.263, 0.288, 0.204, 0.432, 0.524]
+rest =  * Status: failure (reached maximum number of iterations)
+
+ * Candidate solution
+    Final objective value:     9.978578e-01
+
+ * Found with
+    Algorithm:     Nelder-Mead
+
+ * Convergence measures
+    √(Σ(yᵢ-ȳ)²)/n ≰ 1.0e-08
+
+ * Work counters
+    Seconds run:   691  (vs limit Inf)
+    Iterations:    10000
+    f(x) calls:    13438
+
+696.039990 seconds (1.85 G allocations: 521.059 GiB, 7.01% gc time, 0.05% compilation time)
+
+julia> @time include("tfm_26_04.jl")
+nsites = 8
+nqubits0 = 2
+nlayers = 10
+bondim = 10
+iter = 10000
+pi1 = Any[0.52, 0.446, 0.518, 0.511, 0.591, 0.513, 0.499, 0.556]
+pf1 = Any[0.541, 0.486, 0.517, 0.173, 0.194, 0.505, 0.515, 0.491]
+rest =  * Status: failure (reached maximum number of iterations)
+
+ * Candidate solution
+    Final objective value:     3.674334e-01
+
+ * Found with
+    Algorithm:     Nelder-Mead
+
+ * Convergence measures
+    √(Σ(yᵢ-ȳ)²)/n ≰ 1.0e-08
+
+ * Work counters
+    Seconds run:   657  (vs limit Inf)
+    Iterations:    10000
+    f(x) calls:    13041
+
+661.835668 seconds (1.79 G allocations: 502.338 GiB, 6.90% gc time, 0.05% compilation time)
+

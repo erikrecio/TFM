@@ -1,0 +1,57 @@
+
+cd /tmp
+cd ..
+cd ~/Downloads
+
+sudo apt update
+sudo apt upgrade
+
+sudo apt 	install 	build-essential zlib1g-dev wget
+sudo apt-get 	install -y 	powershell
+sudo snap 	install 	whatsapp-for-linux
+sudo apt install ./<file>.deb  (instalar programa des de file .deb)
+
+python --version
+
+sudo 	gedit /etc/environment
+pkexec	gedit /etc/crontab
+
+
+sudo add-apt-repository	ppa:deadsnakes/ppa
+sudo dpkg -i			packages-microsoft-prod.deb
+
+wget -q https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
+wget https://julialang-s3.julialang.org/bin/linux/x64/1.7/julia-1.7.2-linux-x86_64.tar.gz
+
+apt list --installed | grep -i perl
+
+python eduroam-linux-IIoPS.py
+
+descomprimir tar:
+tar -xvzf julia-1.7.2-linux-x86_64.tar.gz
+
+copiar arxiu a carpeta:
+sudo cp -r julia-1.7.2 /opt/
+
+crear link a /usr/local/bin/:
+sudo ln -s /opt/julia-1.7.2/bin/julia /usr/local/bin/julia
+
+crear carpeta
+mkdir julia_ws
+
+create file
+touch hello.txt alohanddance.xlsx
+
+execute file with different programs:
+gedit helloWorld.jl
+code helloWorld.jl
+julia helloWorld.jl
+
+
+
+julia
+_________________________
+
+
+julia> include("proba1.jl")
+

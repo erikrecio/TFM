@@ -1,0 +1,70 @@
+
+
+vector c dim = d^L
+
+tensor (num sites (L), dimensió site (d), files, columnes)
+____________________________________________________________
+
+✔ [08m:47s] PackageCompiler: compiling incremental system image
+You will be able to start Julia with a compiled version of ITensors using:
+```
+~ julia --sysimage /home/user/.julia/sysimages/sys_itensors.so
+```
+and you should see that the startup times and JIT compilation times are substantially improved when you are using ITensors.
+
+In unix, you can create an alias with the Bash command:
+```
+~ alias julia_itensors="julia --sysimage /home/user/.julia/sysimages/sys_itensors.so -e 'using ITensors' -i"
+```
+which you can put in your `~/.bashrc`, `~/.zshrc`, etc. This also executes `using ITensors` so that ITensors is loaded and ready to use, you can leave off ` -e 'using ITensors' -i` if you don't want that. Then you can start Julia with a version of ITensors installed with the command:
+```
+~ julia_itensors
+```
+
+Note that if you update ITensors to a new version, for example with `using Pkg; Pkg.update("ITensors")`, you will need to run the `ITensors.compile()` command again to recompile the new version of ITensors.
+
+"/home/user/.julia/sysimages/sys_itensors.so"
+
+
+________________________________________________
+
+[3:41 PM] Erik Recio Armengol
+what do you think is the purpose of the project
+
+[3:41 PM] Erik Recio Armengol
+what do we want to accomplish / see
+
+[3:42 PM] Erik Recio Armengol
+why are we doing what we are doing i guess
+
+[3:43 PM] Korbinian Kottmann
+Ah I see
+
+[3:45 PM] Korbinian Kottmann
+We are setting up a pipeline to simulate variational Quantum algorithms for relevant system sizes. Most simulators only allow for few qubits. With tensor networks we can access much larger systems. There is a lot of debate on the scalability of these algorithms so there are many questions to explore on that regard. At the moment I think the aim is just to have the tools and then while we set it up and explore it, more specific questions to pursue will be distilled.
+
+[3:46 PM] Korbinian Kottmann
+One of the more concrete goals with have set was to diaentangle different input states variationally. There we could do something like reproducing the transverse field ising model phase diagram just from looking at the required length of the circuit to be able to disentangle the ground gates.
+
+[3:47 PM] Korbinian Kottmann
+Actually what Paolo and I discussed yesterday could also be interesting, checking the magnitude of the gradient instead of just the expectetiok value and see if it is vanishing for some relevant problems like vqe or not.
+
+[3:48 PM] Korbinian Kottmann
+But really I think for the moment the main point is to set up the 'experiment' and vet it running reliably
+
+[3:51 PM] Erik Recio Armengol
+I really just wanted to know more about the why
+
+[3:51 PM] Erik Recio Armengol
+and the scope
+
+[3:51 PM] Erik Recio Armengol
+like why was it usefull to "measure" complexity and where we were going with this
+
+[3:52 PM] Korbinian Kottmann
+Ah oka
+
+[3:52 PM] Korbinian Kottmann
+Complexity is still quite a mysterious subject! People basically know very little about it and providing anything on it can be useful! 😇
+
+
