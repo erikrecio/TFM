@@ -4,6 +4,17 @@ using Optim
 using BenchmarkTools
 
 
+function ising_hamiltonian(nsites; h)
+  ℋ = OpSum()
+  for j in 1:(nsites - 1)
+    ℋ += -1, "Z", j, "Z", j + 1
+  end
+  for j in 1:nsites
+    ℋ += h, "X", j
+  end
+  return ℋ
+end
+
 # A layer of the circuit we want to optimize
 function layer(nsites, θ⃗)
   RY_layer = [("Ry", (n,), (θ=θ⃗[n],)) for n in 1:nsites]
@@ -22,23 +33,21 @@ function variational_circuit(nsites, nlayers, θ⃗)
 end
 
 
-nsites = 8
+nsites = 5
 nqubits0 = 2
 
-nlayers = 10
-bondim = 10
-iter = 10000
-
-h = 1.3
-ℋ = ising_hamiltonian(nsites; h=h)
-H = MPO(ℋ, s)
+nlayers = 3
+bondim = 5
+iter = 1000
 
 s = siteinds("Qubit", nsites)
 ψ0 = MPS(s, "0")
 Random.seed!(1234)
-
 #ψ0 = randomMPS(ComplexF64, s; linkdims=bondim)
 
+h = 1.3
+ℋ = ising_hamiltonian(nsites; h=h)
+H = MPO(ℋ, s)
 
 function loss(θ⃗)
   nsites = length(ψ0)
@@ -134,17 +143,6 @@ function main()
   =#
 
   return nothing
-end
-
-function ising_hamiltonian(nsites; h)
-  ℋ = OpSum()
-  for j in 1:(nsites - 1)
-    ℋ += -1, "Z", j, "Z", j + 1
-  end
-  for j in 1:nsites
-    ℋ += h, "X", j
-  end
-  return ℋ
 end
 
 
