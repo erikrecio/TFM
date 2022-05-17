@@ -33,23 +33,7 @@ function variational_circuit(nsites, nlayers, θ⃗)
 end
 
 
-nsites = 5
-nqubits0 = 2
-
-nlayers = 3
-bondim = 5
-iter = 1000
-
-s = siteinds("Qubit", nsites)
-ψ0 = MPS(s, "0")
-Random.seed!(1234)
-#ψ0 = randomMPS(ComplexF64, s; linkdims=bondim)
-
-h = 1.3
-ℋ = ising_hamiltonian(nsites; h=h)
-H = MPO(ℋ, s)
-
-function loss(θ⃗)
+function loss(θ⃗, ψ0, nqubits0, nlayers)
   nsites = length(ψ0)
   s = siteinds(ψ0)
   
@@ -70,22 +54,33 @@ function loss(θ⃗)
     p1 += 0.5 - scalar(ψθ⃗_dag_j * Sz_j * ψθ⃗[j])
   end
 
-  #a = trunc(Int, nsites/2)
-  #@show ψθ⃗[a]
-
   return real.(p1)
 
 end
 
 
-function main()
+function main(nsites, nqubits0, nlayers, h, iter)
+
+  ####################################
+  # Calculate Ground State      ######
+  ####################################
+
+  s = siteinds("Qubit", nsites)
+  ψ0 = MPS(s, "0")
+  #ψ0 = randomMPS(ComplexF64, s; linkdims=bondim)
   
+  ℋ = ising_hamiltonian(nsites; h=h)
+  H = MPO(ℋ, s)
+  
+  sweeps = Sweeps(5)
+  setmaxdim!(sweeps, 10)
+  e_dmrg, ψ0 = dmrg(H, ψ0, sweeps)
 
 
+  ####################################
+  # Print initial wave function ######
+  ####################################
 
-  ####################################################
-  #   
-  ####################################################
   pi1 = []
   pf1 = []
 
@@ -99,19 +94,27 @@ function main()
   @show nsites
   @show nqubits0
   @show nlayers
-  @show bondim
   @show iter
 
   @show pi1
 
 
-  θ⃗₀ = 2π * rand(nsites * nlayers)
+  ####################################
+  # Optimization                ######
+  ####################################
   
+  θ⃗₀ = 2π * rand(nsites * nlayers)
   #lv = loss(θ⃗₀)
 
-  rest = optimize(loss, θ⃗₀, NelderMead(), Optim.Options(iterations = iter))
+  rest = optimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers), θ⃗₀, NelderMead(), Optim.Options(iterations = iter))
   θ⃗op = rest.minimizer
   min = rest.minimum
+  
+
+  ####################################
+  # Print final wave function   ######
+  ####################################
+
   
   for j in 1:nsites
     orthogonalize!(ψθ⃗,j)
@@ -147,5 +150,21 @@ end
 
 
 
+#option: Random.seed!(1234)
+nsites = 5
+nqubits0 = 2
+iter = 1000
 
-main()
+h = 0.5
+nlayers = 3
+
+
+#@btime or @time
+@time main(nsites, nqubits0, nlayers, h, iter)
+
+
+#= Questions:
+1. When is the bond dimension defined? (lambda > cutoff=1e-8?)
+
+
+=#
