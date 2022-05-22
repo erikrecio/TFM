@@ -2,6 +2,7 @@ using ITensors
 using Random
 using Optim
 using BenchmarkTools
+using Dates
 
 
 function ising_hamiltonian(nsites; h)
@@ -48,10 +49,10 @@ function loss(θ⃗, ψ0, nqubits0, nlayers)
   qubit0_end = qubit0_start + nqubits0 - 1
 
   for j in qubit0_start:qubit0_end
-    orthogonalize!(ψθ⃗,j)
+    orthogonalize!(ψθ⃗::MPS,j)
     Sz_j = op("Sz", s, j)
-    ψθ⃗_dag_j = dag(prime(ψθ⃗[j], "Site"))
-    p1 += 0.5 - scalar(ψθ⃗_dag_j * Sz_j * ψθ⃗[j])
+    ψθ⃗_dag_j = dag(prime(ψθ⃗[j]::ITensor, "Site"))
+    p1 += 0.5 - scalar(ψθ⃗_dag_j * Sz_j * ψθ⃗[j]::ITensor)
   end
 
   return real.(p1)
@@ -59,7 +60,7 @@ function loss(θ⃗, ψ0, nqubits0, nlayers)
 end
 
 
-function main(nsites, nqubits0, nlayers, h, iter)
+function ground_state(nsites, h)
 
   ####################################
   # Calculate Ground State      ######
@@ -76,51 +77,63 @@ function main(nsites, nqubits0, nlayers, h, iter)
   setmaxdim!(sweeps, 10)
   e_dmrg, ψ0 = dmrg(H, ψ0, sweeps)
 
-
   ####################################
   # Print initial wave function ######
   ####################################
 
-  pi1 = []
-  pf1 = []
 
+  pi1 = Float64[]
+
+
+  f = open(s_file_gs, "w")
+  write(f, "nsites nqubits0 nlayers iter")
+  write(f, nsites & nqubits0 & nlayers & iter)
+  
   for j in 1:nsites
     orthogonalize!(ψ0,j)
     Sz_j = op("Sz", s, j)
     ψ0_dag_j = dag(prime(ψ0[j], "Site"))
-    push!(pi1, real.(round( 0.5 - scalar(ψ0_dag_j * Sz_j * ψ0[j]), digits = 3) ))
+    p = real.(round( 0.5 - scalar(ψ0_dag_j * Sz_j * ψ0[j]), digits = 3) )
+    push!(pi1, p)
   end
-
-  @show nsites
-  @show nqubits0
-  @show nlayers
-  @show iter
+ 
+  close(f)
 
   @show pi1
 
+  return ψ0
+
+end 
+
+function optim_nelder(ψ0, nqubits0, nlayers, iter)
 
   ####################################
   # Optimization                ######
   ####################################
-  
-  θ⃗₀ = 2π * rand(nsites * nlayers)
-  #lv = loss(θ⃗₀)
 
+  nsites = length(ψ0)
+  s = siteinds(ψ0)
+
+  θ⃗₀ = 2π * rand(nsites * nlayers)
   rest = optimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers), θ⃗₀, NelderMead(), Optim.Options(iterations = iter))
-  θ⃗op = rest.minimizer
-  min = rest.minimum
   
 
   ####################################
   # Print final wave function   ######
   ####################################
 
-  
+  @show nsites
+  @show nqubits0
+  @show nlayers
+  @show iter
+
+  pf1 = Float64[]
+
   for j in 1:nsites
-    orthogonalize!(ψθ⃗,j)
+    orthogonalize!(ψθ⃗::MPS,j)
     Sz_j = op("Sz", s, j)
-    ψθ⃗_dag_j = dag(prime(ψθ⃗[j], "Site"))
-    push!(pf1, real.(round( 0.5 - scalar(ψθ⃗_dag_j * Sz_j * ψθ⃗[j]), digits = 3) ))
+    ψθ⃗_dag_j = dag(prime(ψθ⃗[j]::ITensor, "Site"))
+    push!(pf1, real.(round( 0.5 - scalar(ψθ⃗_dag_j * Sz_j * ψθ⃗[j]::ITensor), digits = 3) ))
   end
 
   @show pf1
@@ -130,8 +143,8 @@ function main(nsites, nqubits0, nlayers, h, iter)
   @show rest
 
   @show rest.ls_success
-  @show rest.minimum
-  @show rest.minimizer
+  @show min = rest.minimum
+  @show θ⃗op = rest.minimizer
   
   @show rest.iterations
   @show rest.f_calls
@@ -149,22 +162,47 @@ function main(nsites, nqubits0, nlayers, h, iter)
 end
 
 
+function main()
 
-#option: Random.seed!(1234)
-nsites = 5
-nqubits0 = 2
-iter = 1000
+  #Random.seed!(1234)
 
-h = 0.5
-nlayers = 3
+  nsites = 5
+  nqubits0 = 2
+  iter = 10
 
+  h = 0.5
+  nlayers = 3
 
-#@btime or @time
-@time main(nsites, nqubits0, nlayers, h, iter)
+  nsites_2 = 0
+  h_2 = 999
+
+  
+  time_now = Dates.format(now(), "e, dd/mm/yy HH:MM")
+  
+  
+  global s_file_gs = "D:/Users/Usuario/Documents/1 Master Quantum Physics and Technology/TFM/JuliaFiles/Ground state - " * time_now * ".txt"
+  #touch(s_file_gs)
+
+  #@btime or @time
+  if h_2 != h || nsites_2 != nsites
+    ψ0 = ground_state(nsites, h)
+    h_2 = h
+    nsites_2 = nsites
+  end
+
+  time = @elapsed optim_nelder(ψ0, nqubits0, nlayers, iter)
+
+  @show time
+
+  return nothing
+
+end
+
+main()
+
 
 
 #= Questions:
 1. When is the bond dimension defined? (lambda > cutoff=1e-8?)
-
 
 =#
