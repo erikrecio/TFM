@@ -3,6 +3,7 @@ using Random
 using Optim
 using BenchmarkTools
 using Dates
+using Printf
 
 
 function ising_hamiltonian(nsites; h)
@@ -60,7 +61,7 @@ function loss(θ⃗, ψ0, nqubits0, nlayers)
 end
 
 
-function ground_state(nsites, h)
+function ground_state(nsites, nqubits0, nlayers, h, iter)
 
   ####################################
   # Calculate Ground State      ######
@@ -82,24 +83,33 @@ function ground_state(nsites, h)
   ####################################
 
 
-  pi1 = Float64[]
+  p1_i = Float64[]
 
 
-  f = open(s_file_gs, "w")
-  write(f, "nsites nqubits0 nlayers iter")
-  write(f, nsites & nqubits0 & nlayers & iter)
-  
+  f = open(name_file_sumup, "w")
+  write(f, "nsites = $nsites nqubits0 = $nqubits0 nlayers = $nlayers iter = $iter\n")
+  write(f, "p1_i = [")
+  #write(f, @sprintf("nsites = %i nqubits0 = %i nlayers = %i iter = %i\n",nsites, nqubits0, nlayers, iter))
+
   for j in 1:nsites
+
     orthogonalize!(ψ0,j)
     Sz_j = op("Sz", s, j)
     ψ0_dag_j = dag(prime(ψ0[j], "Site"))
     p = real.(round( 0.5 - scalar(ψ0_dag_j * Sz_j * ψ0[j]), digits = 3) )
-    push!(pi1, p)
+    push!(p1_i, p)
+
+    if j != nsites
+      write(f, "$p, ")
+    else
+      write(f, "$p")
+    end
+
   end
- 
+  write(f, "]")
   close(f)
 
-  @show pi1
+  @show p1_i
 
   return ψ0
 
@@ -175,17 +185,13 @@ function main()
 
   nsites_2 = 0
   h_2 = 999
+  
+  time_now = Dates.format(now(), "e, dd.mm.yy HH.MM.SS")
+  dir = "D:/Users/Usuario/Documents/1 Master Quantum Physics and Technology/TFM/JuliaFiles/"
+  global name_file_sumup = dir * time_now * ".txt"
 
-  
-  time_now = Dates.format(now(), "e, dd/mm/yy HH:MM")
-  
-  
-  global s_file_gs = "D:/Users/Usuario/Documents/1 Master Quantum Physics and Technology/TFM/JuliaFiles/Ground state - " * time_now * ".txt"
-  #touch(s_file_gs)
-
-  #@btime or @time
   if h_2 != h || nsites_2 != nsites
-    ψ0 = ground_state(nsites, h)
+    ψ0 = ground_state(nsites, nqubits0, nlayers, h, iter)
     h_2 = h
     nsites_2 = nsites
   end
