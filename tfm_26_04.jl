@@ -35,7 +35,7 @@ function variational_circuit(nsites, nlayers, θ⃗)
 end
 
 
-function loss(θ⃗, ψ0, nqubits0, nlayers)
+function loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end)
   nsites = length(ψ0)
   s = siteinds(ψ0)
   
@@ -44,10 +44,6 @@ function loss(θ⃗, ψ0, nqubits0, nlayers)
   global ψθ⃗ = apply(Uθ⃗, ψ0; cutoff=1e-8)
 
   p1 = 0
-
-  # We measure the qubits in the middle of the state
-  qubit0_start = trunc(Int, (nsites-nqubits0)/2 ) + 1
-  qubit0_end = qubit0_start + nqubits0 - 1
 
   for j in qubit0_start:qubit0_end
     orthogonalize!(ψθ⃗::MPS,j)
@@ -83,39 +79,35 @@ function ground_state(nsites, nqubits0, nlayers, h, iter)
   ####################################
 
 
-  p1_i = Float64[]
+  #p1_i = Float64[]
 
 
-  f = open(name_file_sumup, "w")
-  write(f, "nsites = $nsites nqubits0 = $nqubits0 nlayers = $nlayers iter = $iter\n")
-  write(f, "p1_i = [")
-  #write(f, @sprintf("nsites = %i nqubits0 = %i nlayers = %i iter = %i\n",nsites, nqubits0, nlayers, iter))
+  open(name_file_sumup, "a") do f
+    write(f, "p1_i = [")
 
-  for j in 1:nsites
+    for j in 1:nsites
 
-    orthogonalize!(ψ0,j)
-    Sz_j = op("Sz", s, j)
-    ψ0_dag_j = dag(prime(ψ0[j], "Site"))
-    p = real.(round( 0.5 - scalar(ψ0_dag_j * Sz_j * ψ0[j]), digits = 3) )
-    push!(p1_i, p)
+      orthogonalize!(ψ0,j)
+      Sz_j = op("Sz", s, j)
+      ψ0_dag_j = dag(prime(ψ0[j], "Site"))
+      p = real.(round( 0.5 - scalar(ψ0_dag_j * Sz_j * ψ0[j]), digits = 3) )
+      #push!(p1_i, p)
 
-    if j != nsites
-      write(f, "$p, ")
-    else
-      write(f, "$p")
+      if j != nsites
+        write(f, "$p, ")
+      else
+        write(f, "$p")
+      end
+
     end
-
+    write(f, "]")
   end
-  write(f, "]")
-  close(f)
-
-  @show p1_i
 
   return ψ0
 
 end 
 
-function optim_nelder(ψ0, nqubits0, nlayers, iter)
+function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
 
   ####################################
   # Optimization                ######
@@ -125,28 +117,44 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter)
   s = siteinds(ψ0)
 
   θ⃗₀ = 2π * rand(nsites * nlayers)
-  rest = optimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers), θ⃗₀, NelderMead(), Optim.Options(iterations = iter))
+  rest = optimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end), θ⃗₀, NelderMead(), Optim.Options(iterations = iter))
   
 
   ####################################
   # Print final wave function   ######
   ####################################
 
-  @show nsites
-  @show nqubits0
-  @show nlayers
-  @show iter
+  #@show nsites
+  #@show nqubits0
+  #@show nlayers
+  #@show iter
 
-  pf1 = Float64[]
+  #p1_f = Float64[]
 
-  for j in 1:nsites
-    orthogonalize!(ψθ⃗::MPS,j)
-    Sz_j = op("Sz", s, j)
-    ψθ⃗_dag_j = dag(prime(ψθ⃗[j]::ITensor, "Site"))
-    push!(pf1, real.(round( 0.5 - scalar(ψθ⃗_dag_j * Sz_j * ψθ⃗[j]::ITensor), digits = 3) ))
+  open(name_file_sumup, "a") do f
+    write(f, "\np1_f = [")
+    #write(f, @sprintf("nsites = %i nqubits0 = %i nlayers = %i iter = %i\n",nsites, nqubits0, nlayers, iter))
+
+    for j in 1:nsites
+
+      orthogonalize!(ψθ⃗::MPS,j)
+      Sz_j = op("Sz", s, j)
+      ψθ⃗_dag_j = dag(prime(ψθ⃗[j]::ITensor, "Site"))
+      p = real.(round( 0.5 - scalar(ψθ⃗_dag_j * Sz_j * ψθ⃗[j]::ITensor), digits = 3) )
+      #push!(p1_f, p)
+
+      if j != nsites
+        write(f, "$p, ")
+      else
+        write(f, "$p")
+      end
+
+    end
+    write(f, "]")
   end
 
-  @show pf1
+
+  #@show p1_f
   @show rest
   
   #=
@@ -185,10 +193,26 @@ function main()
 
   nsites_2 = 0
   h_2 = 999
+
+  # We measure the qubits in the middle of the state
+  qubit0_start = trunc(Int, (nsites-nqubits0)/2 ) + 1
+  qubit0_end = qubit0_start + nqubits0 - 1
   
-  time_now = Dates.format(now(), "e, dd.mm.yy HH.MM.SS")
+
   dir = "D:/Users/Usuario/Documents/1 Master Quantum Physics and Technology/TFM/JuliaFiles/"
-  global name_file_sumup = dir * time_now * ".txt"
+  time_now = Dates.format(now(), "e, dd.mm.yy HH.MM.SS")
+  global name_file_sumup = dir * "Sumup" * time_now * ".txt"
+
+  name_file_prova1 = dir * "Prova 1 - Time vs iter" * time_now * ".txt"
+  name_file_prova2 = dir * "Prova 2 - Time vs nsites" * time_now * ".txt"
+  name_file_prova3 = dir * "Prova 3 - Time vs nqubits0" * time_now * ".txt"
+  name_file_prova4 = dir * "Prova 4 - Time vs nlayers" * time_now * ".txt"
+  name_file_prova5 = dir * "Prova 5 - Time vs h" * time_now * ".txt"
+
+  open(name_file_sumup, "a") do f
+    write(f, "h = $h\nnsites = $nsites\n\nnqubits0 = $nqubits0\nqubit0_start = $qubit0_start\nqubit0_end = $qubit0_end\n\nnlayers = $nlayers\niter = $iter\n\n")
+  end
+
 
   if h_2 != h || nsites_2 != nsites
     ψ0 = ground_state(nsites, nqubits0, nlayers, h, iter)
@@ -196,9 +220,11 @@ function main()
     nsites_2 = nsites
   end
 
-  time = @elapsed optim_nelder(ψ0, nqubits0, nlayers, iter)
+  time = @elapsed optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
 
-  @show time
+  open(name_file_sumup, "a") do f
+    write(f, "\n\ntime = $time")
+  end
 
   return nothing
 
@@ -210,5 +236,11 @@ main()
 
 #= Questions:
 1. When is the bond dimension defined? (lambda > cutoff=1e-8?)
+
+=#
+
+#= Saved code:
+
+write(f, @sprintf("nsites = %i nqubits0 = %i nlayers = %i iter = %i\n",nsites, nqubits0, nlayers, iter))
 
 =#
