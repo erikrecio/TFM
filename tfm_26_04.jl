@@ -183,6 +183,7 @@ end
 function main()
 
   #Random.seed!(1234)
+  pc = 0
 
   nsites = 5
   nqubits0 = 2
@@ -199,7 +200,15 @@ function main()
   qubit0_end = qubit0_start + nqubits0 - 1
   
 
-  dir = "D:/Users/Usuario/Documents/1 Master Quantum Physics and Technology/TFM/JuliaFiles/"
+  dir_pc = "D:/Users/Usuario/Documents/1 Master Quantum Physics and Technology/TFM/JuliaFiles/"
+  dir_lap = "/home/user/Documents/TFM/TFM/JuliaFiles/"
+
+  if pc == 1
+    dir = dir_pc
+  else
+    dir = dir_lap
+  end
+
   time_now = Dates.format(now(), "e, dd.mm.yy HH.MM.SS")
   global name_file_sumup = dir * "Sumup" * time_now * ".txt"
 
