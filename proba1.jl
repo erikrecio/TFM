@@ -21,7 +21,7 @@ function create_state(; L, d)
     @show scalar(T*dag(T))
 
     return T
-    
+    r=1
 end
 
 function main(; L, d)
