@@ -124,24 +124,15 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
   # Print final wave function   ######
   ####################################
 
-  #@show nsites
-  #@show nqubits0
-  #@show nlayers
-  #@show iter
-
-  #p1_f = Float64[]
-
   open(name_file_sumup, "a") do f
+    write(f, "\n\nsuccess = $(rest.ls_success) ")
     write(f, "\np1_f = [")
-    #write(f, @sprintf("nsites = %i nqubits0 = %i nlayers = %i iter = %i\n",nsites, nqubits0, nlayers, iter))
 
     for j in 1:nsites
-
       orthogonalize!(ψθ⃗::MPS,j)
       Sz_j = op("Sz", s, j)
       ψθ⃗_dag_j = dag(prime(ψθ⃗[j]::ITensor, "Site"))
       p = real.(round( 0.5 - scalar(ψθ⃗_dag_j * Sz_j * ψθ⃗[j]::ITensor), digits = 3) )
-      #push!(p1_f, p)
 
       if j != nsites
         write(f, "$p, ")
@@ -151,30 +142,24 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
 
     end
     write(f, "]")
-  end
 
-
-  #@show p1_f
-  @show rest
+    #=
+    rest.ls_success
+    rest.minimum
+    rest.minimizer
   
-  #=
-  @show rest
+    rest.iterations
+    rest.f_calls
 
-  @show rest.ls_success
-  @show min = rest.minimum
-  @show θ⃗op = rest.minimizer
+    rest.g_converged
+    rest.g_abstol
+    rest.iteration_converged
+    rest.stopped_by
   
-  @show rest.iterations
-  @show rest.f_calls
-
-  @show rest.g_converged
-  @show rest.g_abstol
-  @show rest.iteration_converged
-  @show rest.stopped_by
-  
-  @show rest.time_limit
-  @show rest.time_run
+    rest.time_limit
+    rest.time_run
   =#
+  end
 
   return nothing
 end
@@ -199,31 +184,50 @@ function main()
   qubit0_end = qubit0_start + nqubits0 - 1
   
 
-  dir = "D:/Users/Usuario/Documents/1 Master Quantum Physics and Technology/TFM/JuliaFiles/"
+  dir_pc = "D:/Users/Usuario/Documents/1 Master Quantum Physics and Technology/TFM/JuliaFiles/"
+  dir_lap = "/home/user/Documents/TFM/TFM/JuliaFiles/"
+  
+  dir = dir_lap
+
+  if ispath(dir_pc)
+    dir = dir_pc
+  else
+    dir = dir_lap
+  end
+
   time_now = Dates.format(now(), "e, dd.mm.yy HH.MM.SS")
-  global name_file_sumup = dir * "Sumup" * time_now * ".txt"
+  global name_file_sumup = dir * time_now *  " - 0.Sumup.txt"
 
-  name_file_prova1 = dir * "Prova 1 - Time vs iter" * time_now * ".txt"
-  name_file_prova2 = dir * "Prova 2 - Time vs nsites" * time_now * ".txt"
-  name_file_prova3 = dir * "Prova 3 - Time vs nqubits0" * time_now * ".txt"
-  name_file_prova4 = dir * "Prova 4 - Time vs nlayers" * time_now * ".txt"
-  name_file_prova5 = dir * "Prova 5 - Time vs h" * time_now * ".txt"
-
+  name_file_prova1 = dir * time_now * " - Prova 1 - Time vs iter.txt"
+  name_file_prova2 = dir * time_now *  " - Prova 2 - Time vs nsites.txt"
+  name_file_prova3 = dir * time_now *  " - Prova 3 - Time vs nqubits0.txt"
+  name_file_prova4 = dir * time_now *  " - Prova 4 - Time vs nlayers.txt"
+  name_file_prova5 = dir * time_now *  " - Prova 5 - Time vs h.txt"
+  
   open(name_file_sumup, "a") do f
     write(f, "h = $h\nnsites = $nsites\n\nnqubits0 = $nqubits0\nqubit0_start = $qubit0_start\nqubit0_end = $qubit0_end\n\nnlayers = $nlayers\niter = $iter\n\n")
   end
 
+  ψ0 = 0
 
-  if h_2 != h || nsites_2 != nsites
-    ψ0 = ground_state(nsites, nqubits0, nlayers, h, iter)
-    h_2 = h
-    nsites_2 = nsites
-  end
+  for iter in range(10, 100, step = 10)
+    
+    if h_2 != h || nsites_2 != nsites
+      ψ0 = ground_state(nsites, nqubits0, nlayers, h, iter)
+      h_2 = h
+      nsites_2 = nsites
+    end
 
-  time = @elapsed optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
+    time = @elapsed optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
 
-  open(name_file_sumup, "a") do f
-    write(f, "\n\ntime = $time")
+    open(name_file_sumup, "a") do f
+      write(f, "\ntime = $time")
+    end
+
+    open(name_file_prova1, "a") do f
+      write(f, "$iter $time\n")
+    end
+
   end
 
   return nothing
@@ -235,12 +239,31 @@ main()
 
 
 #= Questions:
-1. When is the bond dimension defined? (lambda > cutoff=1e-8?)
+
+  1. When is the bond dimension defined? (lambda > cutoff=1e-8?)
 
 =#
 
 #= Saved code:
 
-write(f, @sprintf("nsites = %i nqubits0 = %i nlayers = %i iter = %i\n",nsites, nqubits0, nlayers, iter))
+  write(f, @sprintf("nsites = %i nqubits0 = %i nlayers = %i iter = %i\n",nsites, nqubits0, nlayers, iter))
+  p1_f = Float64[]
+  
+  @show rest
 
+  @show rest.ls_success
+  @show min = rest.minimum
+  @show θ⃗op = rest.minimizer
+  
+  @show rest.iterations
+  @show rest.f_calls
+
+  @show rest.g_converged
+  @show rest.g_abstol
+  @show rest.iteration_converged
+  @show rest.stopped_by
+  
+  @show rest.time_limit
+  @show rest.time_run
+  
 =#
