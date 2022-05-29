@@ -52,7 +52,7 @@ function loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end)
     p1 += 0.5 - scalar(ψθ⃗_dag_j * Sz_j * ψθ⃗[j]::ITensor)
   end
 
-  return real.(p1)
+  return real.(p1)/nqubits0
 
 end
 
@@ -143,6 +143,16 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
     end
     write(f, "]")
 
+    @show rest.g_converged
+    @show rest.g_abstol
+    @show rest.f_converged
+    @show rest.f_abstol
+    @show rest.iteration_converged
+    @show rest.stopped_by
+    print( "$(rest.iterations)/$iter\n")
+    @show rest
+
+
     #=
     rest.ls_success
     rest.minimum
@@ -171,9 +181,14 @@ function main()
 
   nsites = 5
   nqubits0 = 2
-  iter = 10
+  
+  iter = 3000
+  blocs = 1
+  i_begin = trunc(Int, iter/blocs)
+  i_end = i_begin * blocs
+  i_step = i_begin
 
-  h = 0.5
+  h = 0
   nlayers = 3
 
   nsites_2 = 0
@@ -184,7 +199,7 @@ function main()
   qubit0_end = qubit0_start + nqubits0 - 1
   
 
-  dir_pc = "D:/Users/Usuario/Documents/1 Master Quantum Physics and Technology/TFM/JuliaFiles/"
+  dir_pc = "D:/Users/Usuario/Documents/1 Master Quantum Physics and Technology/TFM/Repo GitHub/TFM/JuliaFiles/"
   dir_lap = "/home/user/Documents/TFM/TFM/JuliaFiles/"
   
   dir = dir_lap
@@ -210,22 +225,22 @@ function main()
 
   ψ0 = 0
 
-  for iter in range(10, 100, step = 10)
+  for i in range(i_begin, i_end, step = i_step)
     
     if h_2 != h || nsites_2 != nsites
-      ψ0 = ground_state(nsites, nqubits0, nlayers, h, iter)
+      ψ0 = ground_state(nsites, nqubits0, nlayers, h, i)
       h_2 = h
       nsites_2 = nsites
     end
 
-    time = @elapsed optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
+    time = @elapsed optim_nelder(ψ0, nqubits0, nlayers, i, qubit0_start, qubit0_end)
 
     open(name_file_sumup, "a") do f
       write(f, "\ntime = $time")
     end
 
     open(name_file_prova1, "a") do f
-      write(f, "$iter $time\n")
+      write(f, "$i $time\n")
     end
 
   end

@@ -1,0 +1,23 @@
+h = 0
+nsites = 5
+
+nqubits0 = 2
+qubit0_start = 2
+qubit0_end = 3
+
+nlayers = 3
+iter = 3000
+
+p1_i = [0.0, 0.0, 0.0, 0.0, 0.0]
+
+success = true 
+p1_f = [0.08, 0.0, 0.0, 0.798, 0.785]
+time = 5.9456467
+
+success = true 
+p1_f = [0.0, 0.0, 0.0, 0.032, 0.937]
+time = 7.4757464
+
+success = true 
+p1_f = [0.0, 0.0, 0.0, 0.026, 0.971]
+time = 6.410554
