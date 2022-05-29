@@ -210,8 +210,8 @@ function main()
     dir = dir_lap
   end
 
-  time_now = Dates.format(now(), "e, dd.mm.yy HH.MM.SS")
-  global name_file_sumup = dir * time_now *  " - 0.Sumup.txt"
+  time_now = Dates.format(now(), "dd.mm.yy e, HH.MM.SS")
+  global name_file_sumup = dir * time_now *  " - 0. Sumup.txt"
 
   name_file_prova1 = dir * time_now * " - Prova 1 - Time vs iter.txt"
   name_file_prova2 = dir * time_now *  " - Prova 2 - Time vs nsites.txt"
