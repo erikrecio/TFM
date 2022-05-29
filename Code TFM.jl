@@ -199,8 +199,8 @@ function main()
   qubit0_end = qubit0_start + nqubits0 - 1
   
 
-  dir_pc = "D:/Users/Usuario/Documents/1 Master Quantum Physics and Technology/TFM/Repo GitHub/TFM/JuliaFiles/"
-  dir_lap = "/home/user/Documents/TFM/TFM/JuliaFiles/"
+  dir_pc = "D:/Users/Usuario/Documents/1 Master Quantum Physics and Technology/TFM/Repo GitHub/TFM/Results raw/"
+  dir_lap = "/home/user/Documents/TFM/TFM/Results raw/"
   
   dir = dir_lap
 
