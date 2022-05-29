@@ -57,7 +57,7 @@ function loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end)
 end
 
 
-function ground_state(nsites, nqubits0, nlayers, h, iter)
+function ground_state(nsites, h)
 
   ####################################
   # Calculate Ground State      ######
@@ -78,10 +78,6 @@ function ground_state(nsites, nqubits0, nlayers, h, iter)
   # Print initial wave function ######
   ####################################
 
-
-  #p1_i = Float64[]
-
-
   open(name_file_sumup, "a") do f
     write(f, "p1_i = [")
 
@@ -91,7 +87,6 @@ function ground_state(nsites, nqubits0, nlayers, h, iter)
       Sz_j = op("Sz", s, j)
       ψ0_dag_j = dag(prime(ψ0[j], "Site"))
       p = real.(round( 0.5 - scalar(ψ0_dag_j * Sz_j * ψ0[j]), digits = 3) )
-      #push!(p1_i, p)
 
       if j != nsites
         write(f, "$p, ")
@@ -117,7 +112,7 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
   s = siteinds(ψ0)
 
   θ⃗₀ = 2π * rand(nsites * nlayers)
-  rest = optimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end), θ⃗₀, NelderMead(), Optim.Options(iterations = iter))
+  rest = optimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end), θ⃗₀, NelderMead(), Optim.Options(iterations = iter, g_tol = 1e-6))
   
 
   ####################################
@@ -125,7 +120,8 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
   ####################################
 
   open(name_file_sumup, "a") do f
-    write(f, "\n\nsuccess = $(rest.ls_success) ")
+    write(f, "\n\ng_converged = $(rest.g_converged) ")
+    write(f, "\niterations $(rest.iterations)/$iter")
     write(f, "\np1_f = [")
 
     for j in 1:nsites
@@ -142,33 +138,6 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
 
     end
     write(f, "]")
-
-    @show rest.g_converged
-    @show rest.g_abstol
-    @show rest.f_converged
-    @show rest.f_abstol
-    @show rest.iteration_converged
-    @show rest.stopped_by
-    print( "$(rest.iterations)/$iter\n")
-    @show rest
-
-
-    #=
-    rest.ls_success
-    rest.minimum
-    rest.minimizer
-  
-    rest.iterations
-    rest.f_calls
-
-    rest.g_converged
-    rest.g_abstol
-    rest.iteration_converged
-    rest.stopped_by
-  
-    rest.time_limit
-    rest.time_run
-  =#
   end
 
   return nothing
@@ -183,21 +152,16 @@ function main()
   nqubits0 = 2
   
   iter = 3000
-  blocs = 1
-  i_begin = trunc(Int, iter/blocs)
-  i_end = i_begin * blocs
-  i_step = i_begin
+  i_blocs = 1
 
-  h = 0
+  h = 0.5
   nlayers = 3
 
-  nsites_2 = 0
-  h_2 = 999
+
 
   # We measure the qubits in the middle of the state
   qubit0_start = trunc(Int, (nsites-nqubits0)/2 ) + 1
   qubit0_end = qubit0_start + nqubits0 - 1
-  
 
   dir_pc = "D:/Users/Usuario/Documents/1 Master Quantum Physics and Technology/TFM/Repo GitHub/TFM/Results raw/"
   dir_lap = "/home/user/Documents/TFM/TFM/Results raw/"
@@ -223,20 +187,29 @@ function main()
     write(f, "h = $h\nnsites = $nsites\n\nnqubits0 = $nqubits0\nqubit0_start = $qubit0_start\nqubit0_end = $qubit0_end\n\nnlayers = $nlayers\niter = $iter\n\n")
   end
 
+
+  i_begin = trunc(Int, iter/i_blocs)
+  i_end = i_begin * i_blocs
+  i_step = i_begin
+
   ψ0 = 0
+  nsites_2 = 0
+  h_2 = 999
 
   for i in range(i_begin, i_end, step = i_step)
     
     if h_2 != h || nsites_2 != nsites
-      ψ0 = ground_state(nsites, nqubits0, nlayers, h, i)
+      ψ0 = ground_state(nsites, h)
       h_2 = h
       nsites_2 = nsites
     end
 
     time = @elapsed optim_nelder(ψ0, nqubits0, nlayers, i, qubit0_start, qubit0_end)
 
+    time = round(time, digits = 2)
+
     open(name_file_sumup, "a") do f
-      write(f, "\ntime = $time")
+      write(f, "\ntime = $time s")
     end
 
     open(name_file_prova1, "a") do f
