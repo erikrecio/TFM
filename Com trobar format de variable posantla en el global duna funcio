@@ -1,3 +1,5 @@
+#=
+
 typeof(rest) = 
 
 Optim.MultivariateOptimizationResults {
@@ -110,3 +112,4 @@ ________________________________________________________________________________
   @show rest.time_limit
   @show rest.time_run
   @show rest.stopped_by
+=#
