@@ -5,8 +5,6 @@ using BenchmarkTools
 using Dates
 using Printf
 
-hello
-
 function ising_hamiltonian(nsites; h)
   ℋ = OpSum()
   for j in 1:(nsites - 1)
