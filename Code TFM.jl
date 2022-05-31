@@ -4,6 +4,7 @@ using Optim
 using BenchmarkTools
 using Dates
 using Printf
+using Parsers
 
 function ising_hamiltonian(nsites; h)
   ℋ = OpSum()
@@ -78,7 +79,7 @@ function ground_state(nsites, h)
   ####################################
 
   open(name_file_sumup, "a") do f
-    write(f, "p1_i = [")
+    write(f, "\n\n\np1_i = [")
 
     for j in 1:nsites
 
@@ -87,10 +88,12 @@ function ground_state(nsites, h)
       ψ0_dag_j = dag(prime(ψ0[j], "Site"))
       p = real.(round( 0.5 - scalar(ψ0_dag_j * Sz_j * ψ0[j]), digits = 3) )
 
+      p_str = @sprintf "%4.3f" p
+
       if j != nsites
-        write(f, "$p, ")
+        write(f, "$p_str, ")
       else
-        write(f, "$p")
+        write(f, "$p_str")
       end
 
     end
@@ -111,7 +114,7 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
   s = siteinds(ψ0)
 
   θ⃗₀ = 2π * rand(nsites * nlayers)
-  rest = optimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end), θ⃗₀, NelderMead(), Optim.Options(iterations = iter, g_tol = 1e-6))
+  rest = optimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end), θ⃗₀, NelderMead(), Optim.Options(iterations = iter, g_tol = 8e-7))
   
 
   ####################################
@@ -119,8 +122,6 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
   ####################################
 
   open(name_file_sumup, "a") do f
-    write(f, "\n\ng_converged = $(rest.g_converged) ")
-    write(f, "\niterations $(rest.iterations)/$iter")
     write(f, "\np1_f = [")
 
     for j in 1:nsites
@@ -129,14 +130,33 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
       ψθ⃗_dag_j = dag(prime(ψθ⃗[j]::ITensor, "Site"))
       p = real.(round( 0.5 - scalar(ψθ⃗_dag_j * Sz_j * ψθ⃗[j]::ITensor), digits = 3) )
 
+      p_str = @sprintf "%4.3f" p
+
       if j != nsites
-        write(f, "$p, ")
+        write(f, "$p_str, ")
       else
-        write(f, "$p")
+        write(f, "$p_str")
       end
 
     end
     write(f, "]")
+
+    s_spaces_begin = "     , "^(qubit0_start - 1)
+
+    if qubit0_end == nsites
+      s_spaces_end = ""
+      s_last = ""
+    else
+      s_spaces_end = "     , "^(nsites - qubit0_end - 1)
+      s_last = "     "
+    end
+    
+    s_zeros = "0.000, "^(nqubits0)
+    
+
+    write(f, "\nidea = [$s_spaces_begin$s_zeros$s_spaces_end$s_last]")
+    write(f, "\n\ng_converged = $(rest.g_converged) ")
+    write(f, "\niterations $(rest.iterations)/$iter")
   end
 
   return nothing
@@ -145,23 +165,35 @@ end
 
 function main()
 
+  ####################################
+  #   Parameters   ###################
+  ####################################
+
   #Random.seed!(1234)
 
-  nsites = 5
+  nsites = 15
   nqubits0 = 2
   
-  iter = 3000
-  i_blocs = 1
-
   h = 0.5
   nlayers = 3
+  iter = 10000
 
+  change = "nqubits0"
+  i_begin = 2
+  i_end = 15
+  runs = 14
 
+  ####################################
+  #   Code   #########################
+  ####################################
 
-  # We measure the qubits in the middle of the state
-  qubit0_start = trunc(Int, (nsites-nqubits0)/2 ) + 1
-  qubit0_end = qubit0_start + nqubits0 - 1
+  i_step = (i_end - i_begin)/(runs - 1)
+  
+  if change != "h"
+    i_step = trunc(Int, i_step)
+  end
 
+  # Choose the directory to save the files
   dir_pc = "D:/Users/Usuario/Documents/1 Master Quantum Physics and Technology/TFM/Repo GitHub/TFM/Results raw/"
   dir_lap = "/home/user/Documents/TFM/TFM/Results raw/"
   
@@ -173,6 +205,7 @@ function main()
     dir = dir_lap
   end
 
+  # Name the files
   time_now = Dates.format(now(), "dd.mm.yy e, HH.MM.SS")
   global name_file_sumup = dir * time_now *  " - 0. Sumup.txt"
 
@@ -183,35 +216,58 @@ function main()
   name_file_prova5 = dir * time_now *  " - Prova 5 - Time vs h.txt"
   
   open(name_file_sumup, "a") do f
-    write(f, "h = $h\nnsites = $nsites\n\nnqubits0 = $nqubits0\nqubit0_start = $qubit0_start\nqubit0_end = $qubit0_end\n\nnlayers = $nlayers\niter = $iter\n\n")
+    write(f, "h = $h\nnsites = $nsites\nnqubits0 = $nqubits0\n\nnlayers = $nlayers\niter = $iter\n\nchange = $change\nruns = $runs")
   end
-
-
-  i_begin = trunc(Int, iter/i_blocs)
-  i_end = i_begin * i_blocs
-  i_step = i_begin
 
   ψ0 = 0
   nsites_2 = 0
+  nqubits0_2 = 0
   h_2 = 999
 
   for i in range(i_begin, i_end, step = i_step)
     
-    if h_2 != h || nsites_2 != nsites
-      ψ0 = ground_state(nsites, h)
-      h_2 = h
-      nsites_2 = nsites
+    if change == "iter"
+      iter = i
+      file = name_file_prova1
+    elseif change == "nsites"
+      nsites = i
+      file = name_file_prova2
+    elseif change == "nqubits0"
+      nqubits0 = i
+      file = name_file_prova3
+    elseif change == "nlayers"
+      nlayers = i
+      file = name_file_prova4
+    elseif change == "h"
+      h = i
+      file = name_file_prova5
     end
 
-    time = @elapsed optim_nelder(ψ0, nqubits0, nlayers, i, qubit0_start, qubit0_end)
+    # We measure the qubits in the middle of the state
+    if nsites_2 != nsites || nqubits0_2 != nqubits0
+      qubit0_start = trunc(Int, (nsites-nqubits0)/2 ) + 1
+      qubit0_end = qubit0_start + nqubits0 - 1
+    end
+
+    # Calculus of the ground state everytime there is a change
+    if h_2 != h || nsites_2 != nsites
+      ψ0 = ground_state(nsites, h)
+    end
+
+    nsites_2 = nsites
+    nqubits0_2 = nqubits0
+    h_2 = h
+
+    time = @elapsed optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
 
     time = round(time, digits = 2)
-
+    
     open(name_file_sumup, "a") do f
+      write(f, "\n$change = $i")
       write(f, "\ntime = $time s")
     end
 
-    open(name_file_prova1, "a") do f
+    open(file, "a") do f
       write(f, "$i $time\n")
     end
 
@@ -221,8 +277,9 @@ function main()
 
 end
 
-main()
-
+for j in range(1, 10, step=1)
+  main()
+end
 
 
 #= Questions:

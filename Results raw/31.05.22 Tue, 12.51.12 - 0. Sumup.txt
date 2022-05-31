@@ -1,0 +1,33 @@
+h = 0.5
+nsites = 5
+nqubits0 = 2
+
+nlayers = 3
+iter = 10000
+
+change = nsites
+runs = 4
+
+
+p1_i = [0.500, 0.500, 0.500]
+p1_f = [0.000, 0.000, 0.306]
+idea = [     , 0.000, 0.000,      ]
+
+g_converged = true 
+iterations 236/10000
+nsites = 3
+time = 1.43 s
+p1_f = [0.611, 0.000, 0.000]
+idea = [     , 0.000, 0.000,      ]
+
+g_converged = true 
+iterations 663/10000
+nsites = 4
+time = 2.9 s
+p1_f = [0.101, 0.000, 0.000]
+idea = [     , 0.000, 0.000,      ]
+
+g_converged = true 
+iterations 337/10000
+nsites = 5
+time = 1.5 s

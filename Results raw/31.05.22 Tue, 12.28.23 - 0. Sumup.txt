@@ -1,0 +1,48 @@
+h = 0.5
+nsites = 5
+
+nqubits0 = 2
+qubit0_start = 2
+qubit0_end = 3
+
+nlayers = 3
+iter = 10000
+
+change = nsites
+runs = 4
+
+
+p1_i = [0.500, 0.500, 0.500]
+p1_f = [0.867, 0.000, 0.000]
+
+g_converged = true 
+iterations 177/10000
+nsites = 3
+time = 1.13 s
+
+
+p1_i = [0.477, 0.475, 0.475, 0.477]
+p1_f = [0.659, 0.032, 0.018, 0.903]
+
+g_converged = true 
+iterations 897/10000
+nsites = 4
+time = 6.24 s
+
+
+p1_i = [0.485, 0.484, 0.483, 0.484, 0.485]
+p1_f = [0.491, 0.020, 0.050, 0.489, 0.139]
+
+g_converged = true 
+iterations 2136/10000
+nsites = 5
+time = 17.79 s
+
+
+p1_i = [0.499, 0.499, 0.499, 0.499, 0.499, 0.499]
+p1_f = [0.501, 0.063, 0.013, 0.436, 0.453, 0.651]
+
+g_converged = true 
+iterations 1351/10000
+nsites = 6
+time = 17.82 s

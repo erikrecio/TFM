@@ -1,0 +1,30 @@
+h = 0.5
+nsites = 5
+
+nqubits0 = 2
+qubit0_start = 2
+qubit0_end = 3
+
+nlayers = 3
+iter = 3000
+blocs = 3
+
+p1_i = [0.485, 0.484, 0.483, 0.484, 0.485]
+
+g_converged = false 
+iterations 1000/1000
+p1_f = [0.549, 0.023, 0.065, 0.468, 0.612]
+iter = 3000
+time = 7.7 s
+
+g_converged = true 
+iterations 486/2000
+p1_f = [1.0, 0.0, 0.0, 0.303, 0.619]
+iter = 3000
+time = 4.53 s
+
+g_converged = true 
+iterations 2149/3000
+p1_f = [0.0, 0.0, 0.0, 0.076, 0.104]
+iter = 3000
+time = 15.48 s
