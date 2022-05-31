@@ -1,0 +1,9 @@
+h = 0.5
+nsites = 15
+nqubits0 = 2
+
+nlayers = 3
+iter = 10000
+
+change = nqubits0
+runs = 14
