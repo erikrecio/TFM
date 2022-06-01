@@ -155,7 +155,7 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
     
 
     write(f, "\nidea = [$s_spaces_begin$s_zeros$s_spaces_end$s_last]")
-    write(f, "\n\ng_converged = $(rest.g_converged) ")
+    write(f, "\ng_converged = $(rest.g_converged) ")
     write(f, "\niterations $(rest.iterations)/$iter")
   end
 
@@ -213,14 +213,26 @@ function main()
   time_now = Dates.format(now(), "yy.mm.dd e, HH.MM.SS")
   global name_file_sumup = dir * time_now *  " - 0. Sumup.txt"
 
-  name_file_prova1 = dir * time_now * " - Prova 1 - Time vs iter.txt"
-  name_file_prova2 = dir * time_now *  " - Prova 2 - Time vs nsites.txt"
-  name_file_prova3 = dir * time_now *  " - Prova 3 - Time vs nqubits0.txt"
-  name_file_prova4 = dir * time_now *  " - Prova 4 - Time vs nlayers.txt"
-  name_file_prova5 = dir * time_now *  " - Prova 5 - Time vs h.txt"
+  global name_file_prova1 = dir * time_now * " - Prova 1 - Time vs iter.txt"
+  global name_file_prova2 = dir * time_now *  " - Prova 2 - Time vs nsites.txt"
+  global name_file_prova3 = dir * time_now *  " - Prova 3 - Time vs nqubits0.txt"
+  global name_file_prova4 = dir * time_now *  " - Prova 4 - Time vs nlayers.txt"
+  global name_file_prova5 = dir * time_now *  " - Prova 5 - Time vs h.txt"
   
   open(name_file_sumup, "a") do f
-    write(f, "h = $h\nnsites = $nsites\nnqubits0 = $nqubits0\n\nnlayers = $nlayers\niter = $iter\n\nchange = $change\nruns = $runs")
+    write(f, "h = $h\nnsites = $nsites\nnqubits0 = $nqubits0\n\nnlayers = $nlayers\niter = $iter\n\nchange = $change\nruns = $runs\n\n")
+  end
+
+  if change == "iter"
+    global file = name_file_prova1
+  elseif change == "nsites"
+    global file = name_file_prova2
+  elseif change == "nqubits0"
+    global file = name_file_prova3
+  elseif change == "nlayers"
+    global file = name_file_prova4
+  elseif change == "h"
+    global file = name_file_prova5
   end
 
   open(file, "a") do f
@@ -228,7 +240,6 @@ function main()
     write(f, "\n$nsites $nqubits0 $h $nlayers")
     write(f, "\n\ng_converged iter $change time")
   end
-
 
   ψ0 = 0
   nsites_2 = 0
@@ -239,21 +250,16 @@ function main()
     
     if change == "iter"
       iter = i
-      file = name_file_prova1
     elseif change == "nsites"
       nsites = i
-      file = name_file_prova2
     elseif change == "nqubits0"
       nqubits0 = i
-      file = name_file_prova3
     elseif change == "nlayers"
       nlayers = i
-      file = name_file_prova4
     elseif change == "h"
       h = i
-      file = name_file_prova5
     end
-
+    
     # We measure the qubits in the middle of the state
     if nsites_2 != nsites || nqubits0_2 != nqubits0
       qubit0_start = trunc(Int, (nsites-nqubits0)/2 ) + 1
@@ -275,7 +281,7 @@ function main()
     
     open(name_file_sumup, "a") do f
       write(f, "\n$change = $i")
-      write(f, "\ntime = $time s\n\n")
+      write(f, "\ntime = $time s\n")
     end
 
     open(file, "a") do f
