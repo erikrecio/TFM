@@ -79,7 +79,7 @@ function ground_state(nsites, h)
   ####################################
 
   open(name_file_sumup, "a") do f
-    write(f, "\n\n\np1_i = [")
+    write(f, "\np1_i = [")
 
     for j in 1:nsites
 
@@ -159,6 +159,10 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
     write(f, "\niterations $(rest.iterations)/$iter")
   end
 
+  open(file, "a") do f
+    write(f, "\n$(rest.g_converged) $(rest.iterations)")
+  end
+
   return nothing
 end
 
@@ -173,15 +177,15 @@ function main()
 
   nsites = 15
   nqubits0 = 2
-  
   h = 0.5
   nlayers = 3
-  iter = 10000
 
   change = "nqubits0"
   i_begin = 2
   i_end = 15
   runs = 14
+
+  iter = 1000000000
 
   ####################################
   #   Code   #########################
@@ -206,7 +210,7 @@ function main()
   end
 
   # Name the files
-  time_now = Dates.format(now(), "dd.mm.yy e, HH.MM.SS")
+  time_now = Dates.format(now(), "yy.mm.dd e, HH.MM.SS")
   global name_file_sumup = dir * time_now *  " - 0. Sumup.txt"
 
   name_file_prova1 = dir * time_now * " - Prova 1 - Time vs iter.txt"
@@ -218,6 +222,13 @@ function main()
   open(name_file_sumup, "a") do f
     write(f, "h = $h\nnsites = $nsites\nnqubits0 = $nqubits0\n\nnlayers = $nlayers\niter = $iter\n\nchange = $change\nruns = $runs")
   end
+
+  open(file, "a") do f
+    write(f, "nsites nqubits0 h nlayers")
+    write(f, "\n$nsites $nqubits0 $h $nlayers")
+    write(f, "\n\ng_converged iter $change time")
+  end
+
 
   ψ0 = 0
   nsites_2 = 0
@@ -264,11 +275,11 @@ function main()
     
     open(name_file_sumup, "a") do f
       write(f, "\n$change = $i")
-      write(f, "\ntime = $time s")
+      write(f, "\ntime = $time s\n\n")
     end
 
     open(file, "a") do f
-      write(f, "$i $time\n")
+      write(f, " $i $time")
     end
 
   end
