@@ -176,14 +176,14 @@ function main()
   #Random.seed!(1234)
 
   nsites = 15
-  nqubits0 = 2
-  h = 0.5
+  nqubits0 = 5
+  h = 0.57
   nlayers = 3
 
-  change = "nqubits0"
-  i_begin = 2
-  i_end = 15
-  runs = 14
+  change = "nlayers"
+  i_begin = 3
+  i_end = 12
+  runs = 10
 
   iter = 1000000000
 
@@ -245,6 +245,8 @@ function main()
   nsites_2 = 0
   nqubits0_2 = 0
   h_2 = 999
+  qubit0_start = 0
+  qubit0_end = 0
 
   for i in range(i_begin, i_end, step = i_step)
     
@@ -276,7 +278,6 @@ function main()
     h_2 = h
 
     time = @elapsed optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
-
     time = round(time, digits = 2)
     
     open(name_file_sumup, "a") do f

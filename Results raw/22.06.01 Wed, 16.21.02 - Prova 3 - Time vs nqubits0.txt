@@ -1,0 +1,13 @@
+nsites nqubits0 h nlayers
+10 2 0.57 3
+
+g_converged iter nqubits0 time
+true 12745 2 289.4
+true 3146 3 77.74
+true 9493 4 227.8
+true 4133 5 91.52
+true 9783 6 227.79
+true 7918 7 187.05
+true 6712 8 151.48
+true 20969 9 491.29
+true 28755 10 684.82
