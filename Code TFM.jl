@@ -4,7 +4,10 @@ using Optim
 using BenchmarkTools
 using Dates
 using Printf
-using Parsers
+
+using OptimKit
+using Random
+using Zygote
 
 function ising_hamiltonian(nsites; h)
   ℋ = OpSum()
@@ -114,8 +117,13 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
   s = siteinds(ψ0)
 
   θ⃗₀ = 2π * rand(nsites * nlayers)
-  rest = optimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end), θ⃗₀, GradientDescent(), Optim.Options(iterations = iter, g_tol = 8e-7))
+  #rest = optimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end), θ⃗₀, NelderMead(), Optim.Options(iterations = iter, g_tol = 8e-7))
   
+  loss_∇loss(θ⃗) = (θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end), convert(Vector, θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end)))
+  algorithm = OptimKit.LBFGS(; gradtol=1e-3, verbosity=2)
+  θ⃗ₒₚₜ, lossₒₚₜ, ∇lossₒₚₜ, numfg, normgradhistory = OptimKit.optimize(loss_∇loss, θ⃗₀, algorithm)
+
+  @show loss(θ⃗ₒₚₜ, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end)
 
   ####################################
   # Print final wave function   ######
@@ -175,15 +183,15 @@ function main()
 
   #Random.seed!(1234)
 
-  nsites = 15
-  nqubits0 = 5
+  nsites = 3
+  nqubits0 = 2
   h = 0.57
-  nlayers = 3
+  nlayers = 1
 
   change = "nlayers"
-  i_begin = 3
-  i_end = 12
-  runs = 10
+  i_begin = 1
+  i_end = 2
+  runs = 2
 
   iter = 1000000000
 
@@ -295,7 +303,7 @@ function main()
 
 end
 
-for j in range(1, 10, step=1)
+for j in range(1, 1, step=1)
   main()
 end
 
