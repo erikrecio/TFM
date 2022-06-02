@@ -114,7 +114,7 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
   s = siteinds(ψ0)
 
   θ⃗₀ = 2π * rand(nsites * nlayers)
-  rest = optimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end), θ⃗₀, NelderMead(), Optim.Options(iterations = iter, g_tol = 8e-7))
+  rest = optimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end), θ⃗₀, GradientDescent(), Optim.Options(iterations = iter, g_tol = 8e-7))
   
 
   ####################################
