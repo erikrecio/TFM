@@ -329,3 +329,10 @@ end
   @show rest.time_run
   
 =#
+
+#= New optimization methods
+
+  - Simultaneous Perturbation Stochastic Approximation (SPSA)
+  - Constrained Optimization by Linear Approximation optimizer (COBYLA)
+
+=#
