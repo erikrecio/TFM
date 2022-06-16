@@ -1,6 +1,8 @@
 using ITensors
 using Random
 using Optim
+using BlackBoxOptim
+
 using BenchmarkTools
 using Dates
 using Printf
@@ -117,13 +119,32 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
   s = siteinds(ψ0)
 
   θ⃗₀ = 2π * rand(nsites * nlayers)
+  
   #rest = optimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end), θ⃗₀, NelderMead(), Optim.Options(iterations = iter, g_tol = 8e-7))
   
-  loss_∇loss(θ⃗) = (θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end), convert(Vector, θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end)))
+  
+  
+  res = bboptimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end); SearchRange = (-3.15, 3.15), NumDimensions = nsites * nlayers, Method = :simultaneous_perturbation_stochastic_approximation)
+  
+  
+  #loss_∇loss(θ⃗) = (θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end), θ⃗ -> loss'(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end))
+  #print( loss_∇loss(θ⃗₀)[1])
+  #print("\n")
+  #gradient(θ⃗) = θ⃗ -> loss'(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end)
+  #paolo = gradient(θ⃗₀)
+  #a = convert(Vector, paolo)
+  #println(typeof(a))
+  #println(a)
+
+  #print("\n")
+  #print( loss_∇loss(θ⃗₀)[2])
+  
+  #=
   algorithm = OptimKit.LBFGS(; gradtol=1e-3, verbosity=2)
   θ⃗ₒₚₜ, lossₒₚₜ, ∇lossₒₚₜ, numfg, normgradhistory = OptimKit.optimize(loss_∇loss, θ⃗₀, algorithm)
 
   @show loss(θ⃗ₒₚₜ, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end)
+  =#
 
   ####################################
   # Print final wave function   ######
@@ -181,9 +202,9 @@ function main()
   #   Parameters   ###################
   ####################################
 
-  #Random.seed!(1234)
+  Random.seed!(1234)
 
-  nsites = 3
+  nsites = 6
   nqubits0 = 2
   h = 0.57
   nlayers = 1
@@ -336,4 +357,13 @@ end
   @show rest.time_limit
   @show rest.time_run
   
+=#
+
+#= New Algorithms
+
+  Simultaneous Perturbation Stochastic Approximation (SPSA)
+    https://github.com/robertfeldt/BlackBoxOptim.jl
+
+  Constrained Optimization by Linear Approximation (COBYLA)
+
 =#
