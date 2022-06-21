@@ -330,9 +330,10 @@ end
   
 =#
 
-#= New optimization methods
+#= Optimization methods
 
+  - NelderMead -> rest = optimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end), θ⃗₀, NelderMead(), Optim.Options(iterations = iter, g_tol = 8e-7))
   - Simultaneous Perturbation Stochastic Approximation (SPSA)
-  - Constrained Optimization by Linear Approximation optimizer (COBYLA)
+  - Constrained Optimization by Linear Approximation (COBYLA)
 
 =#
