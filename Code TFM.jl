@@ -38,7 +38,6 @@ function variational_circuit(nsites, nlayers, θ⃗)
   return circuit
 end
 
-
 function loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end)
   nsites = length(ψ0)
   s = siteinds(ψ0)
@@ -59,7 +58,6 @@ function loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end)
   return real.(p1)/nqubits0
 
 end
-
 
 function ground_state(nsites, h)
 
@@ -104,7 +102,21 @@ function ground_state(nsites, h)
     write(f, "]")
   end
 
-  return ψ0
+  ############################################################
+  # Print the entanglement entropy of the wave function ######
+  ############################################################
+
+  q_middle = trunc(Int, (nsites + 1)/2)
+
+  orthogonalize!(ψ0, q_middle)
+  U,S,V = svd(ψ0[b], (linkind(ψ0, q_middle-1), siteind(ψ0, q_middle)))
+  SvN = 0.0
+  for n=1:dim(S, 1)
+    p = S[n,n]^2
+    SvN -= p * log(p)
+  end
+
+  return ψ0, SvN
 
 end 
 
@@ -149,22 +161,22 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
     if qubit0_end == nsites
       s_spaces_end = ""
       s_last = ""
+      s_zeros = "0.000, "^(nqubits0 - 1) * "0.000"
     else
       s_spaces_end = "     , "^(nsites - qubit0_end - 1)
       s_last = "     "
+      s_zeros = "0.000, "^(nqubits0)
     end
-    
-    s_zeros = "0.000, "^(nqubits0)
     
 
     write(f, "\nidea = [$s_spaces_begin$s_zeros$s_spaces_end$s_last]")
-    write(f, "\ng_converged = $(rest.g_converged) ")
+    write(f, "\ng_converged = $(rest.g_converged)")
+    write(f, "\nmin_loss = $(rest.minimum)")
     write(f, "\niterations $(rest.iterations)/$iter")
   end
 
-  open(file, "a") do f
-    write(f, "\n\ng_converged iter nsites nqubits0 h nlayers time")
-    write(f, "\n$(rest.g_converged) $(rest.iterations)")
+  open(name_file_plot, "a") do f
+    write(f, "\n$(rest.g_converged) $(rest.minimum) $(rest.iterations)")
   end
 
   return nothing
@@ -226,23 +238,23 @@ function optim_black_box(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
     write(f, "\niterations $(rest.iterations)/$iter")
   end
 
-  open(file, "a") do f
+  open(name_file_plot, "a") do f
     write(f, "\n$(rest.stop_reason) $(rest.iterations)")
   end
 
 
-#=
-  method         :: String
-  stop_reason    :: String
-  iterations     :: Int64
-  start_time     :: Float64
-  elapsed_time   :: Float64
-  parameters     :: AbstractDict{Symbol, Any}
-  f_calls        :: Int64
-  fit_scheme     :: FitnessScheme
-  archive_output :: BlackBoxOptim.ArchiveOutput
-  method_output  :: BlackBoxOptim.MethodOutput
-=#
+  #=
+    method         :: String
+    stop_reason    :: String
+    iterations     :: Int64
+    start_time     :: Float64
+    elapsed_time   :: Float64
+    parameters     :: AbstractDict{Symbol, Any}
+    f_calls        :: Int64
+    fit_scheme     :: FitnessScheme
+    archive_output :: BlackBoxOptim.ArchiveOutput
+    method_output  :: BlackBoxOptim.MethodOutput
+  =#
 
   return nothing
 
@@ -257,11 +269,11 @@ function main()
 
   Random.seed!(1234)
 
-  #conf_ = [begin, end, runs]
-  conf_nsites = [3,4,2]
-  conf_nqubits0 = [2,3,2]
-  conf_h = [0,0,1]
-  conf_nlayers = [3,4,2]
+  #conf_        = [begin, end, runs,  step]
+  conf_nsites   = [4,       4,    1,     1]
+  conf_nqubits0 = [1,       4,    0,     1]
+  conf_h        = [0.0,   1.0,    0,  0.02]
+  conf_nlayers  = [1,       4,    0,     1]
 
   method = 1
   iter = 1000000000
@@ -271,30 +283,58 @@ function main()
   #   Code   #########################
   ####################################
 
-  if conf_nsites[3] <> 1
-    append!(conf_nsites, (conf_nsites[2] - conf_nsites[1])/(conf_nsites[3] - 1) )
-  else
-    append!(conf_nsites, 0)
-  end
+  # Caculate Steps if missing ###
 
-  if conf_nqubits0[3] <> 1
-    append!(conf_nqubits0, (conf_nqubits0[2] - conf_nqubits0[1])/(conf_nqubits0[3] - 1) )
-  else
-    append!(conf_nqubits0, 0)
-  end
-
-  if conf_h[3] <> 1
-    append!(conf_h, (conf_h[2] - conf_h[1])/(conf_h[3] - 1) )
-  else
-    append!(conf_h, 0)
-  end
-
-  if conf_nlayers[3] <> 1
-    append!(conf_nlayers, (conf_nlayers[2] - conf_nlayers[1])/(conf_nlayers[3] - 1) )
-  else
-    append!(conf_nlayers, 0)
+  if conf_nsites[4] == 0
+    if conf_nsites[3] != 1
+      conf_nsites[4] = (conf_nsites[2] - conf_nsites[1])/(conf_nsites[3] - 1) 
+    else
+      conf_nsites[4] = 1
+    end
   end
   
+  if conf_h[4] == 0
+    if conf_h[3] != 1
+      conf_h[4] = (conf_h[2] - conf_h[1])/(conf_h[3] - 1)
+    else
+      conf_h[4] = 1
+    end
+  end
+
+  if conf_nqubits0[4] == 0
+    if conf_nqubits0[3] != 1
+      conf_nqubits0[4] = (conf_nqubits0[2] - conf_nqubits0[1])/(conf_nqubits0[3] - 1)
+    else
+      conf_nqubits0[4] = 1
+    end
+  end
+  
+  if conf_nlayers[4] == 0
+    if conf_nlayers[3] != 1
+      conf_nlayers[4] = (conf_nlayers[2] - conf_nlayers[1])/(conf_nlayers[3] - 1)
+    else
+      conf_nlayers[4] = 1
+    end
+  end
+  
+
+  # Caculate Runs if missing ###
+
+  if conf_nsites[3] == 0
+    conf_nsites[3] = (conf_nsites[2] - conf_nsites[1])/(conf_nsites[4] + 1) 
+  end
+  
+  if conf_h[3] == 0
+    conf_h[3] = (conf_h[2] - conf_h[1])/(conf_h[4] + 1)
+  end
+
+  if conf_nqubits0[3] == 0
+    conf_nqubits0[3] = (conf_nqubits0[2] - conf_nqubits0[1])/(conf_nqubits0[4] + 1)
+  end
+  
+  if conf_nlayers[3] == 0
+    conf_nlayers[3] = (conf_nlayers[2] - conf_nlayers[1])/(conf_nlayers[4] + 1)
+  end
 
   # Choose the directory to save the files
   dir_pc = "D:/Users/Usuario/Documents/1 Master Quantum Physics and Technology/TFM/Repo GitHub/TFM/Results raw/"
@@ -316,90 +356,97 @@ function main()
   # Name the plot file with the changes
   name_changes = "Time"
   
-  if conf_nsites[3] <> 1
+  if conf_nsites[3] != 1
     name_changes *= " vs nsites"
+  else
+    name_changes *= " vs nsites = $(conf_nsites[1])"
   end
-  if conf_nqubits0[3] <> 1
+  if conf_nqubits0[3] != 1
     name_changes *= " vs nqubits0"
+  else
+    name_changes *= " vs nqubits0 = $(conf_nqubits0[1])"
   end
-  if conf_h[3] <> 1
+  if conf_h[3] != 1
     name_changes *= " vs h"
+  else
+    name_changes *= " vs h = $(conf_h[1])"
   end
-  if conf_nlayers[3] <> 1
+  if conf_nlayers[3] != 1
     name_changes *= " vs nlayers"
+  else
+    name_changes *= " vs nlayers = $(conf_nlayers[1])"
   end
 
-  global name_file_plot = dir * time_now * " - " * name_changes
-  @show name_file_plot
+  global name_file_plot = dir * time_now * " - " * name_changes * ".txt"
 
-
-  conf_nsites = [3,4,2]
-  conf_nqubits0 = [2,3,2]
-  conf_h = [0,0,1]
-  conf_nlayers = [3,4,2]
-
+  # Write the headers in the files
   open(name_file_sumup, "a") do f
-    write(f, "h = $h\nnsites = $conf_nsites\nnqubits0 = $conf_nqubits0\nh = $conf_h\nnlayers = $conf_nlayers\n\nchanges = $name_changes\niter = $iter\nmethod=$method\n\n")
+    write(f, "nsites = $conf_nsites\nnqubits0 = $conf_nqubits0\nh = $conf_h\nnlayers = $conf_nlayers\n\nchanges = $name_changes\niter = $iter\nmethod = $method\n\n")
   end
-
 
   open(name_file_plot, "a") do f
     write(f, "changes = $name_changes")
-    write(f, "\n\ng_converged iter nsites nqubits0 h nlayers time")
+    write(f, "\n\ng_converged min_loss iter nsites nqubits0 h nlayers SvN time")
   end
 
+  #initialize some variables
   ψ0 = 0
+  SvN = 0
   nsites_2 = 0
   nqubits0_2 = 0
   h_2 = 999
   qubit0_start = 0
   qubit0_end = 0
 
-  for i in range(i_begin[j], i_end[j], step = i_step)
+  for nsites in range(conf_nsites[1], conf_nsites[2], step = conf_nsites[4])
+    max_nqubits0 = min(nsites, conf_nqubits0[2])
+    for h in range(conf_h[1], conf_h[2], step = conf_h[4])
+      for nqubits0 in range(conf_nqubits0[1], max_nqubits0, step = conf_nqubits0[4])
+        for nlayers in range(conf_nlayers[1], conf_nlayers[2], step = conf_nlayers[4])
     
-    if change[j] == "nsites"
-      nsites = trunc(Int, i)
-    elseif change[j] == "nqubits0"
-      nqubits0 = trunc(Int, i)
-    elseif change[j] == "nlayers"
-      nlayers = trunc(Int, i)
-    elseif change[j] == "h"
-      h = i
-    end
-    
-    # We measure the qubits in the middle of the state
-    if nsites_2 != nsites || nqubits0_2 != nqubits0
-      qubit0_start = trunc(Int, (nsites-nqubits0)/2 ) + 1
-      qubit0_end = qubit0_start + nqubits0 - 1
-    end
+          nsites = trunc(Int, nsites)
+          nqubits0 = trunc(Int, nqubits0)
+          nlayers = trunc(Int, nlayers)
+        
+          
+          # Save the qubits in the middle of the state (the ones we will turn to 0)
+          if nsites_2 != nsites || nqubits0_2 != nqubits0
+            qubit0_start = trunc(Int, (nsites-nqubits0)/2 ) + 1
+            qubit0_end = qubit0_start + nqubits0 - 1
+          end
 
-    # Calculus of the ground state everytime there is a change
-    if h_2 != h || nsites_2 != nsites
-      ψ0 = ground_state(nsites, h)
-    end
+          # Calculate the ground state everytime there is a change
+          if h_2 != h || nsites_2 != nsites
+            ψ0, SvN = ground_state(nsites, h)
+          end
 
-    nsites_2 = nsites
-    nqubits0_2 = nqubits0
-    h_2 = h
+          nsites_2 = nsites
+          nqubits0_2 = nqubits0
+          h_2 = h
 
-    if method == 1
-      time = @elapsed optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
-    elseif method == 2
-      time = @elapsed optim_black_box(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
-    end
+          # Execute minimizer algorithm, save the time
+          if method == 1
+            time = @elapsed optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
+          elseif method == 2
+            time = @elapsed optim_black_box(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
+          end
 
-    time = round(time, digits = 2)
-    
-    open(name_file_sumup, "a") do f
-      write(f, "\nh = $h")
-      write(f, "\nnlayers = $nlayers")
-      write(f, "\ntime = $time s\n")
-    end
+          time = round(time, digits = 2)
+        
+          # Write the last data on the files
+          open(name_file_sumup, "a") do f
+            write(f, "\nh = $h")
+            write(f, "\nnlayers = $nlayers")
+            write(f, "\nSvN = $SvN")
+            write(f, "\ntime = $time s\n")
+          end
 
-    open(file, "a") do f
-      write(f, " $nsites $nqubits0 $h $nlayers $time")
+          open(name_file_plot, "a") do f
+            write(f, " $nsites $nqubits0 $h $nlayers $SvN $time")
+          end
+        end
+      end
     end
-  
   end
 
   return nothing
