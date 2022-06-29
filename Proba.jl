@@ -1,5 +1,5 @@
 
-set JULIA_NUM_THREADS=4
+#set JULIA_NUM_THREADS=4
 
 @show Threads.nthreads()
 
