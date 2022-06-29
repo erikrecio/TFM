@@ -270,10 +270,10 @@ function main()
   #Random.seed!(1234)
 
   #conf_        = [begin, end, runs,  step]
-  conf_nsites   = [4,       4,    1,     1]
-  conf_nqubits0 = [1,       4,    0,     1]
-  conf_h        = [0.0,   1.0,    0,  0.04]
-  conf_nlayers  = [3,       4,    0,     1]
+  conf_nsites   = [4,       4,    1,     0]
+  conf_nqubits0 = [1,       1,    1,     0]
+  conf_h        = [0.06, 0.18,    0, 0.001]
+  conf_nlayers  = [1,       4,    0,     1]
 
   method = 1
   iter = 1000000000
@@ -430,7 +430,7 @@ function main()
             time = @elapsed optim_black_box(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
           end
 
-          time = round(time, digits = 2)
+          #time = round(time, digits = 2)
         
           # Write the last data on the files
           open(name_file_sumup, "a") do f
