@@ -1,0 +1,6 @@
+changes = Time vs nsites vs h vs nqubits0 vs nlayers
+
+g_converged iter nsites h nqubits0 nlayers time
+true 87 5 0.0 1 1 0.3
+true 240 5 0.0 1 2 0.96
+true 490 5 0.0 1 3 2.43

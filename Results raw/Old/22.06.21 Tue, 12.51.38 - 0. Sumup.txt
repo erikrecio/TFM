@@ -1,0 +1,21 @@
+h = 0.57
+nsites = 4
+nqubits0 = 2
+
+nlayers = 3
+iter = 1000000000
+
+change = method
+runs = 2
+
+
+p1_i = [0.495, 0.494, 0.494, 0.495]
+p1_f = [0.702, 0.034, 0.021, 0.410]
+idea = [     , 0.000, 0.000,      ]
+g_converged = true 
+iterations 1698/1000000000
+method = 1
+time = 7.6 s
+
+method = 2
+time = 60.1 s

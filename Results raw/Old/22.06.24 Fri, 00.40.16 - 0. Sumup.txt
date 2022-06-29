@@ -1,0 +1,16 @@
+h = [0, 0, 1, 1]
+nsites = [3, 4, 2, 1]
+nqubits0 = [2, 3, 2, 1]
+h = [0, 0, 1, 1]
+nlayers = [3, 4, 2, 1]
+
+changes = Time vs nsites vs nqubits0 vs nlayers
+iter = 1000000000
+method=1
+
+
+p1_i = [0.000, 0.000, 0.000]
+p1_f = [0.000, 0.000, 0.007]
+idea = [0.000, 0.000,      ]
+g_converged = true 
+iterations 322/1000000000

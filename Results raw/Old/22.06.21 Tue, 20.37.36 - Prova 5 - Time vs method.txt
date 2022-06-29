@@ -1,0 +1,6 @@
+nsites nqubits0 h nlayers
+4 2 0.57 3
+
+g_converged iter method time
+true 1698 1 14.12
+Max number of steps (10000) reached 10001 2 73.42

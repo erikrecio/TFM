@@ -1,0 +1,4 @@
+nsites nqubits0 h nlayers
+3 2 0.57 1
+
+g_converged iter nlayers time 1 0.17 2 0.0

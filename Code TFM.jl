@@ -1,10 +1,14 @@
 using ITensors
 using Random
 using Optim
+using BlackBoxOptim
+
 using BenchmarkTools
 using Dates
 using Printf
-using Parsers
+
+#using OptimKit
+#using Zygote
 
 function ising_hamiltonian(nsites; h)
   ℋ = OpSum()
@@ -34,7 +38,6 @@ function variational_circuit(nsites, nlayers, θ⃗)
   return circuit
 end
 
-
 function loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end)
   nsites = length(ψ0)
   s = siteinds(ψ0)
@@ -55,7 +58,6 @@ function loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end)
   return real.(p1)/nqubits0
 
 end
-
 
 function ground_state(nsites, h)
 
@@ -100,7 +102,21 @@ function ground_state(nsites, h)
     write(f, "]")
   end
 
-  return ψ0
+  ############################################################
+  # Print the entanglement entropy of the wave function ######
+  ############################################################
+
+  q_middle = trunc(Int, (nsites + 1)/2)
+
+  orthogonalize!(ψ0, q_middle)
+  U,S,V = svd(ψ0[q_middle], (linkind(ψ0, q_middle-1), siteind(ψ0, q_middle)))
+  SvN = 0.0
+  for n=1:dim(S, 1)
+    p = S[n,n]^2
+    SvN -= p * log(p)
+  end
+
+  return ψ0, SvN
 
 end 
 
@@ -114,8 +130,71 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
   s = siteinds(ψ0)
 
   θ⃗₀ = 2π * rand(nsites * nlayers)
-  rest = optimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end), θ⃗₀, NelderMead(), Optim.Options(iterations = iter, g_tol = 8e-7))
+  rest = Optim.optimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end), θ⃗₀, NelderMead(), Optim.Options(iterations = iter, g_tol = 8e-7))
   
+  ####################################
+  # Print final wave function   ######
+  ####################################
+
+  open(name_file_sumup, "a") do f
+    write(f, "\np1_f = [")
+
+    for j in 1:nsites
+      orthogonalize!(ψθ⃗::MPS,j)
+      Sz_j = op("Sz", s, j)
+      ψθ⃗_dag_j = dag(prime(ψθ⃗[j]::ITensor, "Site"))
+      p = real.(round( 0.5 - scalar(ψθ⃗_dag_j * Sz_j * ψθ⃗[j]::ITensor), digits = 3) )
+
+      p_str = @sprintf "%4.3f" p
+
+      if j != nsites
+        write(f, "$p_str, ")
+      else
+        write(f, "$p_str")
+      end
+
+    end
+    write(f, "]")
+
+    s_spaces_begin = "     , "^(qubit0_start - 1)
+
+    if qubit0_end == nsites
+      s_spaces_end = ""
+      s_last = ""
+      s_zeros = "0.000, "^(nqubits0 - 1) * "0.000"
+    else
+      s_spaces_end = "     , "^(nsites - qubit0_end - 1)
+      s_last = "     "
+      s_zeros = "0.000, "^(nqubits0)
+    end
+    
+
+    write(f, "\nidea = [$s_spaces_begin$s_zeros$s_spaces_end$s_last]")
+    write(f, "\ng_converged = $(rest.g_converged)")
+    write(f, "\nmin_loss = $(rest.minimum)")
+    write(f, "\niterations $(rest.iterations)/$iter")
+  end
+
+  open(name_file_plot, "a") do f
+    write(f, "\n$(rest.g_converged) $(rest.minimum) $(rest.iterations)")
+  end
+
+  return nothing
+end
+
+function optim_black_box(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
+  
+  ####################################
+  # Optimization                ######
+  ####################################
+
+  nsites = length(ψ0)
+  s = siteinds(ψ0)
+
+  θ⃗₀ = 2π * rand(nsites * nlayers)
+  global rest = bboptimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end); SearchRange = (-3.15, 3.15), NumDimensions = nsites * nlayers, Method = :simultaneous_perturbation_stochastic_approximation)
+
+  @show rest
 
   ####################################
   # Print final wave function   ######
@@ -155,15 +234,30 @@ function optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
     
 
     write(f, "\nidea = [$s_spaces_begin$s_zeros$s_spaces_end$s_last]")
-    write(f, "\ng_converged = $(rest.g_converged) ")
+    write(f, "\nstop_reason = $(rest.stop_reason) ")
     write(f, "\niterations $(rest.iterations)/$iter")
   end
 
-  open(file, "a") do f
-    write(f, "\n$(rest.g_converged) $(rest.iterations)")
+  open(name_file_plot, "a") do f
+    write(f, "\n$(rest.stop_reason) $(rest.iterations)")
   end
 
+
+  #=
+    method         :: String
+    stop_reason    :: String
+    iterations     :: Int64
+    start_time     :: Float64
+    elapsed_time   :: Float64
+    parameters     :: AbstractDict{Symbol, Any}
+    f_calls        :: Int64
+    fit_scheme     :: FitnessScheme
+    archive_output :: BlackBoxOptim.ArchiveOutput
+    method_output  :: BlackBoxOptim.MethodOutput
+  =#
+
   return nothing
+
 end
 
 
@@ -175,26 +269,71 @@ function main()
 
   #Random.seed!(1234)
 
-  nsites = 15
-  nqubits0 = 5
-  h = 0.57
-  nlayers = 3
+  #conf_        = [begin, end, runs,  step]
+  conf_nsites   = [4,       4,    1,     0]
+  conf_nqubits0 = [1,       1,    1,     0]
+  conf_h        = [0.06, 0.18,    0, 0.001]
+  conf_nlayers  = [1,       4,    0,     1]
 
-  change = "nlayers"
-  i_begin = 3
-  i_end = 12
-  runs = 10
-
+  method = 1
   iter = 1000000000
+
 
   ####################################
   #   Code   #########################
   ####################################
 
-  i_step = (i_end - i_begin)/(runs - 1)
+  # Caculate Steps if missing ###
+
+  if conf_nsites[4] == 0
+    if conf_nsites[3] != 1
+      conf_nsites[4] = (conf_nsites[2] - conf_nsites[1])/(conf_nsites[3] - 1) 
+    else
+      conf_nsites[4] = 1
+    end
+  end
   
-  if change != "h"
-    i_step = trunc(Int, i_step)
+  if conf_h[4] == 0
+    if conf_h[3] != 1
+      conf_h[4] = (conf_h[2] - conf_h[1])/(conf_h[3] - 1)
+    else
+      conf_h[4] = 1
+    end
+  end
+
+  if conf_nqubits0[4] == 0
+    if conf_nqubits0[3] != 1
+      conf_nqubits0[4] = (conf_nqubits0[2] - conf_nqubits0[1])/(conf_nqubits0[3] - 1)
+    else
+      conf_nqubits0[4] = 1
+    end
+  end
+  
+  if conf_nlayers[4] == 0
+    if conf_nlayers[3] != 1
+      conf_nlayers[4] = (conf_nlayers[2] - conf_nlayers[1])/(conf_nlayers[3] - 1)
+    else
+      conf_nlayers[4] = 1
+    end
+  end
+  
+
+  # Caculate Runs if missing ###
+
+  if conf_nsites[3] == 0
+    conf_nsites[3] = trunc(Int, (conf_nsites[2] - conf_nsites[1] + 1)/conf_nsites[4] + 1)
+  end
+  
+  if conf_h[3] == 0
+    conf_h[3] = (conf_h[2] - conf_h[1])/conf_h[4] + 1
+  end
+
+  if conf_nqubits0[3] == 0
+    conf_nqubits0[3] = trunc(Int, (conf_nqubits0[2] - conf_nqubits0[1])/conf_nqubits0[4] + 1)
+  end
+  
+  if conf_nlayers[3] == 0
+    conf_nlayers[3] = trunc(Int, (conf_nlayers[2] - conf_nlayers[1])/conf_nlayers[4] + 1)
   end
 
   # Choose the directory to save the files
@@ -209,95 +348,116 @@ function main()
     dir = dir_lap
   end
 
-  # Name the files
+  # Name the sumup file 
   time_now = Dates.format(now(), "yy.mm.dd e, HH.MM.SS")
   global name_file_sumup = dir * time_now *  " - 0. Sumup.txt"
-
-  global name_file_prova1 = dir * time_now * " - Prova 1 - Time vs iter.txt"
-  global name_file_prova2 = dir * time_now *  " - Prova 2 - Time vs nsites.txt"
-  global name_file_prova3 = dir * time_now *  " - Prova 3 - Time vs nqubits0.txt"
-  global name_file_prova4 = dir * time_now *  " - Prova 4 - Time vs nlayers.txt"
-  global name_file_prova5 = dir * time_now *  " - Prova 5 - Time vs h.txt"
   
+
+  # Name the plot file with the changes
+  name_changes = "Time"
+  
+  if conf_nsites[3] != 1
+    name_changes *= " vs nsites"
+  else
+    name_changes *= " vs nsites = $(conf_nsites[1])"
+  end
+  if conf_nqubits0[3] != 1
+    name_changes *= " vs nqubits0"
+  else
+    name_changes *= " vs nqubits0 = $(conf_nqubits0[1])"
+  end
+  if conf_h[3] != 1
+    name_changes *= " vs h"
+  else
+    name_changes *= " vs h = $(conf_h[1])"
+  end
+  if conf_nlayers[3] != 1
+    name_changes *= " vs nlayers"
+  else
+    name_changes *= " vs nlayers = $(conf_nlayers[1])"
+  end
+
+  global name_file_plot = dir * time_now * " - " * name_changes * ".txt"
+
+  # Write the headers in the files
   open(name_file_sumup, "a") do f
-    write(f, "h = $h\nnsites = $nsites\nnqubits0 = $nqubits0\n\nnlayers = $nlayers\niter = $iter\n\nchange = $change\nruns = $runs\n\n")
+    write(f, "nsites = $conf_nsites\nnqubits0 = $conf_nqubits0\nh = $conf_h\nnlayers = $conf_nlayers\n\nchanges = $name_changes\niter = $iter\nmethod = $method\n\n")
   end
 
-  if change == "iter"
-    global file = name_file_prova1
-  elseif change == "nsites"
-    global file = name_file_prova2
-  elseif change == "nqubits0"
-    global file = name_file_prova3
-  elseif change == "nlayers"
-    global file = name_file_prova4
-  elseif change == "h"
-    global file = name_file_prova5
+  open(name_file_plot, "a") do f
+    write(f, "g_converged min_loss iter nsites nqubits0 h nlayers SvN time")
   end
 
-  open(file, "a") do f
-    write(f, "nsites nqubits0 h nlayers")
-    write(f, "\n$nsites $nqubits0 $h $nlayers")
-    write(f, "\n\ng_converged iter $change time")
-  end
-
+  #initialize some variables
   ψ0 = 0
+  SvN = 0
   nsites_2 = 0
   nqubits0_2 = 0
   h_2 = 999
   qubit0_start = 0
   qubit0_end = 0
 
-  for i in range(i_begin, i_end, step = i_step)
+  for nsites in range(conf_nsites[1], conf_nsites[2], step = conf_nsites[4])
+    max_nqubits0 = min(nsites, conf_nqubits0[2])
+    for h in range(conf_h[1], conf_h[2], step = conf_h[4])
+      for nqubits0 in range(conf_nqubits0[1], max_nqubits0, step = conf_nqubits0[4])
+        for nlayers in range(conf_nlayers[1], conf_nlayers[2], step = conf_nlayers[4])
     
-    if change == "iter"
-      iter = i
-    elseif change == "nsites"
-      nsites = i
-    elseif change == "nqubits0"
-      nqubits0 = i
-    elseif change == "nlayers"
-      nlayers = i
-    elseif change == "h"
-      h = i
-    end
-    
-    # We measure the qubits in the middle of the state
-    if nsites_2 != nsites || nqubits0_2 != nqubits0
-      qubit0_start = trunc(Int, (nsites-nqubits0)/2 ) + 1
-      qubit0_end = qubit0_start + nqubits0 - 1
-    end
+          nsites = trunc(Int, nsites)
+          nqubits0 = trunc(Int, nqubits0)
+          nlayers = trunc(Int, nlayers)
+        
+          
+          # Save the qubits in the middle of the state (the ones we will turn to 0)
+          if nsites_2 != nsites || nqubits0_2 != nqubits0
+            qubit0_start = trunc(Int, (nsites-nqubits0)/2 ) + 1
+            qubit0_end = qubit0_start + nqubits0 - 1
+          end
 
-    # Calculus of the ground state everytime there is a change
-    if h_2 != h || nsites_2 != nsites
-      ψ0 = ground_state(nsites, h)
+          # Calculate the ground state everytime there is a change
+          if h_2 != h || nsites_2 != nsites
+            ψ0, SvN = ground_state(nsites, h)
+          end
+
+          nsites_2 = nsites
+          nqubits0_2 = nqubits0
+          h_2 = h
+
+          # Execute minimizer algorithm, save the time
+          if method == 1
+            time = @elapsed optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
+          elseif method == 2
+            time = @elapsed optim_black_box(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
+          end
+
+          #time = round(time, digits = 2)
+        
+          # Write the last data on the files
+          open(name_file_sumup, "a") do f
+            write(f, "\nh = $h")
+            write(f, "\nnlayers = $nlayers")
+            write(f, "\nSvN = $SvN")
+            write(f, "\ntime = $time s\n")
+          end
+
+          open(name_file_plot, "a") do f
+            write(f, " $nsites $nqubits0 $h $nlayers $SvN $time")
+          end
+        end
+      end
     end
-
-    nsites_2 = nsites
-    nqubits0_2 = nqubits0
-    h_2 = h
-
-    time = @elapsed optim_nelder(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
-    time = round(time, digits = 2)
-    
-    open(name_file_sumup, "a") do f
-      write(f, "\n$change = $i")
-      write(f, "\ntime = $time s\n")
-    end
-
-    open(file, "a") do f
-      write(f, " $i $time")
-    end
-
   end
 
   return nothing
 
 end
 
-for j in range(1, 11, step=1)
+
+for j in range(1, 50, step=1)
   main()
 end
+
+
 
 
 #= Questions:
@@ -330,10 +490,11 @@ end
   
 =#
 
-#= Optimization methods
+#= New Algorithms
 
-  - NelderMead -> rest = optimize(θ⃗ -> loss(θ⃗, ψ0, nqubits0, nlayers, qubit0_start, qubit0_end), θ⃗₀, NelderMead(), Optim.Options(iterations = iter, g_tol = 8e-7))
-  - Simultaneous Perturbation Stochastic Approximation (SPSA)
-  - Constrained Optimization by Linear Approximation (COBYLA)
+  Simultaneous Perturbation Stochastic Approximation (SPSA)
+    https://github.com/robertfeldt/BlackBoxOptim.jl
+
+  Constrained Optimization by Linear Approximation (COBYLA)
 
 =#

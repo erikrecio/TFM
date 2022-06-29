@@ -1,0 +1,3 @@
+4 to 6 qubits, how many minutes? Different methods
+Ising model in a state, different possible states(H bigger, H smaller, h more or less 1
+Calcular tambe la entanglement entropy

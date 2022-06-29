@@ -1,0 +1,12 @@
+h = 0.57
+nsites = 3
+nqubits0 = 2
+
+nlayers = 1
+iter = 1000000000
+
+change = nlayers
+runs = 2
+
+
+p1_i = [0.500, 0.500, 0.500]

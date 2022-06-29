@@ -1,0 +1,12 @@
+h = 0.57
+nsites = 4
+nqubits0 = 2
+
+nlayers = 3
+iter = 1000000000
+
+change = method
+runs = 2
+
+
+p1_i = [0.495, 0.494, 0.494, 0.495]
