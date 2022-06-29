@@ -295,7 +295,7 @@ function main()
 
 end
 
-for j in range(1, 10, step=1)
+for j in range(1, 11, step=1)
   main()
 end
 
