@@ -109,7 +109,7 @@ function ground_state(nsites, h)
   q_middle = trunc(Int, (nsites + 1)/2)
 
   orthogonalize!(ψ0, q_middle)
-  U,S,V = svd(ψ0[b], (linkind(ψ0, q_middle-1), siteind(ψ0, q_middle)))
+  U,S,V = svd(ψ0[q_middle], (linkind(ψ0, q_middle-1), siteind(ψ0, q_middle)))
   SvN = 0.0
   for n=1:dim(S, 1)
     p = S[n,n]^2
@@ -267,13 +267,13 @@ function main()
   #   Parameters   ###################
   ####################################
 
-  Random.seed!(1234)
+  #Random.seed!(1234)
 
   #conf_        = [begin, end, runs,  step]
   conf_nsites   = [4,       4,    1,     1]
   conf_nqubits0 = [1,       4,    0,     1]
-  conf_h        = [0.0,   1.0,    0,  0.02]
-  conf_nlayers  = [1,       4,    0,     1]
+  conf_h        = [0.0,   1.0,    0,  0.04]
+  conf_nlayers  = [3,       4,    0,     1]
 
   method = 1
   iter = 1000000000
@@ -321,19 +321,19 @@ function main()
   # Caculate Runs if missing ###
 
   if conf_nsites[3] == 0
-    conf_nsites[3] = (conf_nsites[2] - conf_nsites[1])/(conf_nsites[4] + 1) 
+    conf_nsites[3] = trunc(Int, (conf_nsites[2] - conf_nsites[1] + 1)/conf_nsites[4] + 1)
   end
   
   if conf_h[3] == 0
-    conf_h[3] = (conf_h[2] - conf_h[1])/(conf_h[4] + 1)
+    conf_h[3] = (conf_h[2] - conf_h[1])/conf_h[4] + 1
   end
 
   if conf_nqubits0[3] == 0
-    conf_nqubits0[3] = (conf_nqubits0[2] - conf_nqubits0[1])/(conf_nqubits0[4] + 1)
+    conf_nqubits0[3] = trunc(Int, (conf_nqubits0[2] - conf_nqubits0[1])/conf_nqubits0[4] + 1)
   end
   
   if conf_nlayers[3] == 0
-    conf_nlayers[3] = (conf_nlayers[2] - conf_nlayers[1])/(conf_nlayers[4] + 1)
+    conf_nlayers[3] = trunc(Int, (conf_nlayers[2] - conf_nlayers[1])/conf_nlayers[4] + 1)
   end
 
   # Choose the directory to save the files
@@ -385,8 +385,7 @@ function main()
   end
 
   open(name_file_plot, "a") do f
-    write(f, "changes = $name_changes")
-    write(f, "\n\ng_converged min_loss iter nsites nqubits0 h nlayers SvN time")
+    write(f, "g_converged min_loss iter nsites nqubits0 h nlayers SvN time")
   end
 
   #initialize some variables
@@ -454,7 +453,7 @@ function main()
 end
 
 
-for j in range(1, 1, step=1)
+for j in range(1, 50, step=1)
   main()
 end
 
