@@ -272,8 +272,8 @@ function main()
   #conf_        = [begin, end, runs,  step]
   conf_nsites   = [4,       4,    1,     0]
   conf_nqubits0 = [1,       1,    1,     0]
-  conf_h        = [0.06, 0.18,    0, 0.001]
-  conf_nlayers  = [1,       4,    0,     1]
+  conf_h        = [0.06, 0.18,    1,     0]
+  conf_nlayers  = [1,       4,    1,     0]
 
   method = 1
   iter = 1000000000
@@ -289,7 +289,7 @@ function main()
     if conf_nsites[3] != 1
       conf_nsites[4] = (conf_nsites[2] - conf_nsites[1])/(conf_nsites[3] - 1) 
     else
-      conf_nsites[4] = 1
+      conf_nsites[4] = conf_nsites[2]
     end
   end
   
@@ -297,7 +297,7 @@ function main()
     if conf_h[3] != 1
       conf_h[4] = (conf_h[2] - conf_h[1])/(conf_h[3] - 1)
     else
-      conf_h[4] = 1
+      conf_h[4] = conf_h[2]
     end
   end
 
@@ -305,7 +305,7 @@ function main()
     if conf_nqubits0[3] != 1
       conf_nqubits0[4] = (conf_nqubits0[2] - conf_nqubits0[1])/(conf_nqubits0[3] - 1)
     else
-      conf_nqubits0[4] = 1
+      conf_nqubits0[4] = conf_nqubits0[2]
     end
   end
   
@@ -313,7 +313,7 @@ function main()
     if conf_nlayers[3] != 1
       conf_nlayers[4] = (conf_nlayers[2] - conf_nlayers[1])/(conf_nlayers[3] - 1)
     else
-      conf_nlayers[4] = 1
+      conf_nlayers[4] = conf_nlayers[2]
     end
   end
   
@@ -337,7 +337,7 @@ function main()
   end
 
   # Choose the directory to save the files
-  dir_pc = "D:/Users/Usuario/Documents/1 Master Quantum Physics and Technology/TFM/Repo GitHub/TFM/Results raw/"
+  dir_pc = "C:/Users/Nosgraph/Documents/GitHub/TFM/Results raw/"
   dir_lap = "/home/user/Documents/TFM/TFM/Results raw/"
   
   dir = dir_lap
@@ -453,7 +453,7 @@ function main()
 end
 
 
-for j in range(1, 50, step=1)
+for j in range(1, 1, step=1)
   main()
 end
 

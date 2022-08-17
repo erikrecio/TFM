@@ -1,0 +1,50 @@
+nsites = [4, 4, 1, 1]
+nqubits0 = [1, 1, 1, 1]
+h = [0.06, 0.18, 1.0, 1.0]
+nlayers = [1, 4, 1, 1]
+
+changes = Time vs nsites = 4 vs nqubits0 = 1 vs h = 0.06 vs nlayers = 1
+iter = 1000000000
+method = 1
+
+
+p1_i = [0.001, 0.000, 0.000, 0.001]
+p1_f = [1.000, 0.000, 0.503, 0.503]
+idea = [     , 0.000,      ,      ]
+g_converged = true
+min_loss = 3.6283813559245814e-7
+iterations 56/1000000000
+h = 0.06
+nlayers = 1
+SvN = 3.2712639605332464e-5
+time = 5.7227596 s
+
+p1_f = [0.107, 0.000, 0.585, 0.844]
+idea = [     , 0.000,      ,      ]
+g_converged = true
+min_loss = 2.3944419272337036e-6
+iterations 149/1000000000
+h = 0.06
+nlayers = 2
+SvN = 3.2712639605332464e-5
+time = 0.6094402 s
+
+p1_f = [0.494, 0.000, 0.477, 0.998]
+idea = [     , 0.000,      ,      ]
+g_converged = true
+min_loss = 1.8947007670022664e-6
+iterations 262/1000000000
+h = 0.06
+nlayers = 3
+SvN = 3.2712639605332464e-5
+time = 1.5231253 s
+
+p1_f = [0.726, 0.000, 0.419, 0.271]
+idea = [     , 0.000,      ,      ]
+g_converged = true
+min_loss = 1.177776812189002e-7
+iterations 448/1000000000
+h = 0.06
+nlayers = 4
+SvN = 3.2712639605332464e-5
+time = 4.0427908 s
