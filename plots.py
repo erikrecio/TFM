@@ -8,8 +8,12 @@ ax = axs[0,0]
 x = np.linspace(2,5,10)
 y = x**2 + x + 1 + np.random.rand(len(x)) # some random data
 
+z = np.linspace(2,5,10)
+t = z**2 + z + 1 + np.random.rand(len(z)) + 2*z # some random data
+
 ax.set_title("title")
-ax.plot(x, y , "x--", label="legend description")
+ax.plot(x, y , label="plot1")
+ax.plot(z, t , label="plot2")
 ax.legend(fontsize=8)
 ax.set_xlabel("n_wires")#, fontsize=16)
 ax.set_ylabel("time (s)")#, fontsize=16)
@@ -26,23 +30,27 @@ ax.set_ylabel("y $\\theta$ also latex no problem")#, fontsize=16)
 ax.set_yscale("log")
 ax.set_xscale("log")
 
-# ax = axs[2]
+
+# ax = axs[0,0]
+
+# x = np.linspace(2,5,10)
+# y = x**2 + x + 1 + np.random.rand(len(x)) # some random data
 
 # ax.set_title("title")
 # ax.plot(x, y , "x--", label="legend description")
-# ax.legend(fontsize=14)
-# ax.set_xlabel("nx", fontsize=16)
-# ax.set_ylabel("y $\\theta$ also latex no problem", fontsize=16)
-# ax.set_yscale("log")
-# ax.set_xscale("log")
+# ax.legend(fontsize=8)
+# ax.set_xlabel("n_wires")#, fontsize=16)
+# ax.set_ylabel("time (s)")#, fontsize=16)
+# ax.set_yscale("linear")
+# ax.set_xscale("linear")
 
-# ax = axs[3]
+# ax = axs[1,0]
 
 # ax.set_title("title")
 # ax.plot(x, y , "x--", label="legend description")
-# ax.legend(fontsize=14)
-# ax.set_xlabel("nx", fontsize=16)
-# ax.set_ylabel("y $\\theta$ also latex no problem", fontsize=16)
+# ax.legend(fontsize=8)
+# ax.set_xlabel("nx")#, fontsize=16)
+# ax.set_ylabel("y $\\theta$ also latex no problem")#, fontsize=16)
 # ax.set_yscale("log")
 # ax.set_xscale("log")
 
