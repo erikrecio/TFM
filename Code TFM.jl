@@ -270,10 +270,10 @@ function main()
   #Random.seed!(1234)
 
   #conf_        = [begin, end, runs,  step]
-  conf_nsites   = [4,       4,    1,     0]
-  conf_nqubits0 = [1,       1,    1,     0]
-  conf_h        = [0.06, 0.18,    1,     0]
-  conf_nlayers  = [1,       4,    1,     0]
+  conf_nsites   = [4,       8,    0,     2]
+  conf_nqubits0 = [1,       9,    0,     1]
+  conf_h        = [0.0,   1.0,    0,  0.01]
+  conf_nlayers  = [1,       4,    0,     1]
 
   method = 1
   iter = 1000000000
@@ -453,7 +453,7 @@ function main()
 end
 
 
-for j in range(1, 1, step=1)
+for j in range(1, 50, step=1)
   main()
 end
 

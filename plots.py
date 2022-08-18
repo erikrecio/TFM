@@ -48,14 +48,13 @@ for plt_nsites in [4, 6, 8]:
 
             if x1 or x2 or x3 or x4:
                 fig, axs = plt.subplots(ncols=2, nrows=2, sharex = True)
-                fig.suptitle("4 sites, 1 qubit0")
-
+                
                 v_labelsize = 7
                 v_fontsize = 8
 
                 ax = axs[0,0]
 
-                ax.scatter(x1, y1, s=5, marker='o', label="1 layer")
+                ax.scatter(x1, y1, s=5, c = 'blue', marker='o', label="1 layer")
                 ax.set_ylabel("min_loss")
                 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
                 ax.legend(fontsize=v_fontsize)
@@ -65,7 +64,7 @@ for plt_nsites in [4, 6, 8]:
 
                 ax = axs[0,1]
 
-                ax.scatter(x2, y2, s=5, marker="o", label="2 layers")
+                ax.scatter(x2, y2, s=5, c = 'green', marker="o", label="2 layers")
                 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
                 ax.legend(fontsize=v_fontsize)
                 ax.tick_params(labelsize=v_labelsize)
@@ -74,7 +73,7 @@ for plt_nsites in [4, 6, 8]:
 
                 ax = axs[1,0]
 
-                ax.scatter(x3, y3, s=5, marker="o", label="3 layers")
+                ax.scatter(x3, y3, s=5, c = 'orange', marker="o", label="3 layers")
                 ax.set_xlabel("h")
                 ax.set_ylabel("min_loss")
                 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
@@ -85,13 +84,14 @@ for plt_nsites in [4, 6, 8]:
 
                 ax = axs[1,1]
 
-                ax.scatter(x4, y4, s=5, marker="o", label="4 layers")
+                ax.scatter(x4, y4, s=5, c = 'red', marker="o", label="4 layers")
                 ax.set_xlabel("h")
                 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
                 ax.legend(fontsize=v_fontsize)
                 ax.tick_params(labelsize=v_labelsize)
                 ax.yaxis.get_offset_text().set_fontsize(v_fontsize)
 
-                figure_name = "nsites = " + str(plt_nsites) + ", nqubits0 = " + str(plt_nqubits0) + ".png"
+                figure_name = str(plt_nsites) + " nsites, " + str(plt_nqubits0) + " nqubits0"
 
-                plt.savefig(figure_name, dpi=200)
+                fig.suptitle(figure_name)
+                plt.savefig(figure_name + ".png", dpi=200)
