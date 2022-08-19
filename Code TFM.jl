@@ -270,9 +270,9 @@ function main()
   #Random.seed!(1234)
 
   #conf_        = [begin, end, runs,  step]
-  conf_nsites   = [8,       8,    1,     0]
+  conf_nsites   = [4,       4,    1,     0]
   conf_nqubits0 = [1,       9,    0,     1]
-  conf_h        = [0.0,   2.0,    0,  0.01]
+  conf_h        = [0.0,   2.0,    0,  0.004]
   conf_nlayers  = [1,       4,    0,     1]
 
   method = 1

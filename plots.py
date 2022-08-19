@@ -3,7 +3,7 @@ import numpy as np
 
 for plt_nsites in [4, 6, 8]:
 
-    for plt_nqubits0 in range(1, plt_nsites):
+    for plt_nqubits0 in range(1, plt_nsites + 1):
 
         x1 = []
         x2 = []
