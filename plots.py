@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 import numpy as np
 
-for plt_nsites in [4, 6, 8]:
+for plt_nsites in range(1, 20 + 1): #[4, 6, 8]
 
     for plt_nqubits0 in range(1, plt_nsites + 1):
 
@@ -16,7 +16,8 @@ for plt_nsites in [4, 6, 8]:
         y4 = []
         
         e = []
-
+        m = []
+        hm = []
 
         with open('data.tsv') as f:
             lines = f.readlines()
@@ -24,11 +25,11 @@ for plt_nsites in [4, 6, 8]:
             for line in lines:
 
                 min_loss = float(line.split()[1])
-                nsites = int(line.split()[2])
-                nqubits0 = int(line.split()[3])
-                h = float(line.split()[4])
-                nlayers = int(line.split()[5])
-                entropy = float(line.split()[6])
+                nsites = int(line.split()[3])
+                nqubits0 = int(line.split()[4])
+                h = float(line.split()[5])
+                nlayers = int(line.split()[6])
+                entropy = float(line.split()[7])
 
                 if nsites == plt_nsites:
                     if nqubits0 == plt_nqubits0:
@@ -120,4 +121,42 @@ for plt_nsites in [4, 6, 8]:
             fig.suptitle(figure_name)
             plt.savefig(figure_name + ".png", dpi=400)
 
-    
+
+        with open('Prova3.tsv') as f:
+            lines = f.readlines()
+            
+            for line in lines:
+
+                nsites = int(line.split()[0])
+                nqubits0 = int(line.split()[1])
+                h = float(line.split()[2])
+                nlayers = int(line.split()[3])
+                entropy = float(line.split()[4])
+                magnet = float(line.split()[5])
+
+                if nsites == plt_nsites:
+                    if nqubits0 == plt_nqubits0:
+
+                        if nlayers == 1:
+                            hm.append(h)
+                            m.append(magnet)
+        
+        if m:
+            fig, axs = plt.subplots(ncols=1, nrows=1)
+                
+            v_labelsize = 7
+            v_fontsize = 8
+
+            ax = axs
+
+            ax.scatter(hm, m, s=5, c = 'purple', marker='o')
+            ax.set_ylabel("Magnetization")
+            ax.set_xlabel("h")
+            ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
+            ax.tick_params(labelsize=v_labelsize)
+            ax.yaxis.get_offset_text().set_fontsize(v_fontsize)
+
+            figure_name = "Magnetization " + str(plt_nsites) + " nsites"
+
+            fig.suptitle(figure_name)
+            plt.savefig(figure_name + ".png", dpi=400)

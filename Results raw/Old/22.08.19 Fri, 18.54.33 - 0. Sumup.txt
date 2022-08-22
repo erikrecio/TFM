@@ -1,0 +1,22 @@
+nsites = [4, 4, 1, 4]
+nqubits0 = [1, 1, 1, 1]
+h = [0.1, 0.1, 1.0, 0.1]
+nlayers = [1, 4, 1, 4]
+
+changes = Time vs nsites = 4 vs nqubits0 = 1 vs h = 0.1 vs nlayers = 1
+iter = 1000000000
+method = 1
+
+
+p1_i = [0.003, 0.001, 0.001, 0.003]
+p1_f = [1.000, 0.000, 0.985, 0.963]
+idea = [     , 0.000,      ,      ]
+g_converged = true
+min_loss = 2.7349026804346366e-6
+iterations 55/1000000000
+h = 0.1
+nlayers = 1
+SvN = 0.0012584685665444728
+m = 0.9964999999999999 
+
+time = 5.8140645 s

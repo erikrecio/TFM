@@ -1,0 +1,2 @@
+g_converged min_loss iter nsites nqubits0 h nlayers SvN m time
+true 2.7349026804346366e-6 55 4 1 0.1 1 0.0012584685665444728 0.9964999999999999 5.8140645

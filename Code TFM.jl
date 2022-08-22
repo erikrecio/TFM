@@ -76,6 +76,7 @@ function ground_state(nsites, h)
   setmaxdim!(sweeps, 10)
   e_dmrg, ψ0 = dmrg(H, ψ0, sweeps)
 
+
   ####################################
   # Print initial wave function ######
   ####################################
@@ -102,9 +103,10 @@ function ground_state(nsites, h)
     write(f, "]")
   end
 
-  ############################################################
-  # Print the entanglement entropy of the wave function ######
-  ############################################################
+
+  ################################################################
+  # Calculate the entanglement entropy of the wave function ######
+  ################################################################
 
   q_middle = trunc(Int, (nsites + 1)/2)
 
@@ -116,7 +118,22 @@ function ground_state(nsites, h)
     SvN -= p * log(p)
   end
 
-  return ψ0, SvN
+
+  #########################################################
+  # Calculate the magnetization of the wave function ######
+  #########################################################
+
+  m = 0.0
+  for j in 1:nsites
+    orthogonalize!(ψ0,j)
+    Z_j = op("Z", s, j)
+    ψ0_dag_j = dag(prime(ψ0[j], "Site"))
+    m += real.(round( scalar(ψ0_dag_j * Z_j * ψ0[j]), digits = 3) )
+  end
+  m /= nsites
+
+
+  return ψ0, SvN, m
 
 end 
 
@@ -260,7 +277,6 @@ function optim_black_box(ψ0, nqubits0, nlayers, iter, qubit0_start, qubit0_end)
 
 end
 
-
 function main()
 
   ####################################
@@ -270,10 +286,10 @@ function main()
   #Random.seed!(1234)
 
   #conf_        = [begin, end, runs,  step]
-  conf_nsites   = [4,       4,    1,     0]
-  conf_nqubits0 = [1,       9,    0,     1]
-  conf_h        = [0.0,   2.0,    0,  0.004]
-  conf_nlayers  = [1,       4,    0,     1]
+  conf_nsites   = [21,      21,   1,     0]
+  conf_nqubits0 = [1,       21,   3,     0]
+  conf_h        = [1.0,   2.0,   0,   0.04]
+  conf_nlayers  = [1,       2,    0,     1]
 
   method = 1
   iter = 1000000000
@@ -287,7 +303,7 @@ function main()
 
   if conf_nsites[4] == 0
     if conf_nsites[3] != 1
-      conf_nsites[4] = (conf_nsites[2] - conf_nsites[1])/(conf_nsites[3] - 1) 
+      conf_nsites[4] = (conf_nsites[2] - conf_nsites[1])/(conf_nsites[3] - 1)
     else
       conf_nsites[4] = conf_nsites[2]
     end
@@ -385,12 +401,13 @@ function main()
   end
 
   open(name_file_plot, "a") do f
-    write(f, "g_converged min_loss iter nsites nqubits0 h nlayers SvN time")
+    write(f, "g_converged min_loss iter nsites nqubits0 h nlayers SvN m time")
   end
 
   #initialize some variables
   ψ0 = 0
   SvN = 0
+  m = 0
   nsites_2 = 0
   nqubits0_2 = 0
   h_2 = 999
@@ -416,7 +433,7 @@ function main()
 
           # Calculate the ground state everytime there is a change
           if h_2 != h || nsites_2 != nsites
-            ψ0, SvN = ground_state(nsites, h)
+            ψ0, SvN, m = ground_state(nsites, h)
           end
 
           nsites_2 = nsites
@@ -437,11 +454,12 @@ function main()
             write(f, "\nh = $h")
             write(f, "\nnlayers = $nlayers")
             write(f, "\nSvN = $SvN")
+            write(f, "\nm = $m")
             write(f, "\ntime = $time s\n")
           end
 
           open(name_file_plot, "a") do f
-            write(f, " $nsites $nqubits0 $h $nlayers $SvN $time")
+            write(f, " $nsites $nqubits0 $h $nlayers $SvN $m $time")
           end
         end
       end
@@ -453,7 +471,7 @@ function main()
 end
 
 
-for j in range(1, 2, step=1)
+for j in range(1, 10, step=1)
   main()
 end
 

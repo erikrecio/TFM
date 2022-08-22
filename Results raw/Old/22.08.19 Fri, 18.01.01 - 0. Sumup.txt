@@ -1,0 +1,9 @@
+nsites = [4, 8, 6, 1]
+nqubits0 = [1, 9, 1, 9]
+h = [0.0, 1.0, 101.0, 0.01]
+nlayers = [1, 1, 1, 1]
+
+changes = Time vs nsites vs nqubits0 = 1 vs h vs nlayers = 1
+iter = 1000000000
+method = 1
+
